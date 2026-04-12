@@ -21,7 +21,7 @@
   "scripts": {
     "build:types": "node build.mjs --types-only",
     "build": "node build.mjs",
-    "smoke:contract": "npm run build && node test/node/terminal-plugin-contract.mjs && node test/node/terminal-data-label-contract.mjs && node test/node/terminal-effect-scatter-contract.mjs && node test/node/terminal-compare-contract.mjs && node test/node/terminal-showcase-contract.mjs",
+    "smoke:contract": "npm run build && node test/node/terminal-plugin-contract.mjs && node test/node/terminal-data-label-contract.mjs && node test/node/terminal-effect-scatter-contract.mjs && node test/node/terminal-interaction-contract.mjs && node test/node/terminal-compare-contract.mjs && node test/node/terminal-showcase-contract.mjs",
     "smoke": "npm run smoke:contract && node test/node/terminal-plugin-smoke.mjs",
     "smoke:live": "npm run smoke:contract && node test/node/terminal-plugin-live.mjs",
     "smoke:live-gallery": "npm run smoke:contract && node test/node/terminal-plugin-live-gallery.mjs",
@@ -29,6 +29,7 @@
     "smoke:deno": "npm run build && sh -c '\"${DENO_BIN:-deno}\" run -A --node-modules-dir=auto --import-map test/deno/import_map.json test/deno/terminal-plugin-smoke.mjs'",
     "smoke:frame": "npm run build && node test/node/terminal.mjs",
     "showcase": "npm run build && node test/node/terminal-showcase.mjs",
+    "showcase:interactive": "npm run build && node test/node/terminal-interaction-live.mjs",
     "showcase:live": "npm run build && node test/node/terminal-live.mjs"
   },
   "dependencies": {

@@ -2,15 +2,22 @@ const HIDE_CURSOR = '\u001b[?25l';
 const SHOW_CURSOR = '\u001b[?25h';
 const CLEAR_DOWN = '\u001b[0J';
 
+import createTerminalInteractionController, {
+    TerminalInput,
+    TerminalInteractionController
+} from './TerminalInteraction.js';
+
 export type TerminalOutput = {
     write(chunk: string): unknown
 };
 
 export type TerminalPlayerOptions = {
     output?: TerminalOutput | null
+    input?: TerminalInput | null
     autoRender?: boolean
     hideCursor?: boolean
     clearOnStop?: boolean
+    interactive?: boolean
 };
 
 export type TerminalChartController = {
@@ -18,6 +25,14 @@ export type TerminalChartController = {
     setOption?: (...args: any[]) => unknown
     resize?: (...args: any[]) => unknown
     dispose?: (...args: any[]) => unknown
+    getModel?: () => unknown
+    getOption?: () => Record<string, unknown>
+    getZr(): {
+        painter: {
+            type: string
+            setInteractionState?: (state: unknown) => void
+        }
+    }
 };
 
 export type TerminalPlayer = {
@@ -38,6 +53,15 @@ function resolveDefaultOutput() {
     return processLike && processLike.stdout ? processLike.stdout : null;
 }
 
+function resolveDefaultInput() {
+    const processLike = (globalThis as typeof globalThis & {
+        process?: {
+            stdin?: TerminalInput
+        }
+    }).process;
+    return processLike && processLike.stdin ? processLike.stdin : null;
+}
+
 function moveToFrameStart(lineCount: number) {
     if (lineCount <= 0) {
         return '\r';
@@ -55,9 +79,11 @@ export default function createTerminalPlayer(
     }
 
     const output = opts.output === undefined ? resolveDefaultOutput() : opts.output;
+    const input = opts.input === undefined ? resolveDefaultInput() : opts.input;
     const autoRender = opts.autoRender !== false;
     const hideCursor = opts.hideCursor !== false;
     const clearOnStop = opts.clearOnStop !== false;
+    const interactive = opts.interactive !== false;
 
     const rawSetOption = chart.setOption ? chart.setOption.bind(chart) : null;
     const rawResize = chart.resize ? chart.resize.bind(chart) : null;
@@ -67,6 +93,7 @@ export default function createTerminalPlayer(
     let cursorHidden = false;
     let rendered = false;
     let lastLineCount = 0;
+    let interactionController: TerminalInteractionController | null = null;
 
     function write(chunk: string) {
         if (output && chunk) {
@@ -98,6 +125,7 @@ export default function createTerminalPlayer(
             if (!chart.renderToTerminalString) {
                 throw new Error('createTerminalPlayer requires a terminal chart.');
             }
+            interactionController?.prepareFrame(chart.getZr().painter);
             const frame = chart.renderToTerminalString();
             const lineCount = frame ? frame.split('\n').length : 0;
             if (output) {
@@ -138,6 +166,7 @@ export default function createTerminalPlayer(
                     chart.dispose = rawDispose;
                 }
             }
+            interactionController?.stop();
             if (clearOnStop) {
                 clearFrame(true);
             }
@@ -151,6 +180,17 @@ export default function createTerminalPlayer(
             return active;
         }
     };
+
+    interactionController = createTerminalInteractionController({
+        chart,
+        input,
+        enabled: interactive,
+        onUpdate() {
+            if (active) {
+                player.render();
+            }
+        }
+    });
 
     if (autoRender) {
         if (rawSetOption) {

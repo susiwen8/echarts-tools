@@ -2,6 +2,7 @@ import Storage from 'zrender/lib/Storage.js';
 import Displayable from 'zrender/lib/graphic/Displayable.js';
 import Path from 'zrender/lib/graphic/Path.js';
 import TerminalCellBuffer from './TerminalCellBuffer.js';
+import { TerminalInteractionRenderState } from './TerminalInteraction.js';
 import { paintPath } from './terminalPath.js';
 import { resolveTerminalColor } from './terminalColor.js';
 
@@ -22,6 +23,7 @@ export default class TerminalPainter {
     private _opts: Record<string, unknown>;
     private _lastRenderResult = '';
     private _interactiveTinyMarkers = new Set<string>();
+    private _interactionState: TerminalInteractionRenderState | null = null;
 
     constructor(root: HTMLElement, storage: Storage, opts: Record<string, unknown> = {}) {
         this.root = root || undefined;
@@ -50,6 +52,10 @@ export default class TerminalPainter {
         this._lastRenderResult = '';
     }
 
+    setInteractionState(state: TerminalInteractionRenderState | null) {
+        this._interactionState = state;
+    }
+
     renderToString() {
         const buffer = new TerminalCellBuffer(this._terminalWidth, this._terminalHeight);
         const list = this.storage.getDisplayList(true);
@@ -60,6 +66,8 @@ export default class TerminalPainter {
         for (let i = 0; i < list.length; i++) {
             this._paintDisplayable(buffer, list[i], scaleX, scaleY);
         }
+
+        this._paintInteractionOverlay(buffer, scaleX, scaleY);
 
         this._lastRenderResult = buffer.toString();
         return this._lastRenderResult;
@@ -308,6 +316,49 @@ export default class TerminalPainter {
             minLuminance: this._getStrokeMinLuminance(el)
         });
         return `${cx}:${cy}:${fill ? fill.join(',') : ''}:${stroke ? stroke.join(',') : ''}`;
+    }
+
+    private _paintInteractionOverlay(buffer: TerminalCellBuffer, scaleX: number, scaleY: number) {
+        if (!this._interactionState || !this._interactionState.active) {
+            return;
+        }
+        buffer.drawText(0, 0, this._interactionState.infoText, this._interactionState.color);
+        if (this._interactionState.kind === 'bar') {
+            this._paintInteractionBar(buffer, scaleX, scaleY);
+            return;
+        }
+        this._paintInteractionPoint(buffer, scaleX, scaleY);
+    }
+
+    private _paintInteractionBar(buffer: TerminalCellBuffer, scaleX: number, scaleY: number) {
+        const state = this._interactionState;
+        if (!state || state.width == null || state.height == null) {
+            return;
+        }
+        const left = Math.max(0, Math.floor((state.x - state.width / 2) / scaleX));
+        const right = Math.min(buffer.width - 1, Math.ceil((state.x + state.width / 2) / scaleX));
+        const top = Math.max(0, Math.floor(state.y / scaleY));
+        const bottom = Math.min(buffer.logicalHeight - 1, Math.ceil((state.y + state.height) / scaleY));
+
+        for (let y = top; y <= bottom; y++) {
+            for (let x = left; x <= right; x++) {
+                buffer.setPixel(x, y, state.color);
+            }
+        }
+    }
+
+    private _paintInteractionPoint(buffer: TerminalCellBuffer, scaleX: number, scaleY: number) {
+        const state = this._interactionState;
+        if (!state) {
+            return;
+        }
+        const cx = state.x / scaleX;
+        const cy = state.y / scaleY;
+        buffer.setPixel(cx - 1, cy, state.color);
+        buffer.setPixel(cx, cy, state.color);
+        buffer.setPixel(cx + 1, cy, state.color);
+        buffer.setPixel(cx, cy - 1, state.color);
+        buffer.setPixel(cx, cy + 1, state.color);
     }
 
     private _getGlobalRect(el: Displayable) {

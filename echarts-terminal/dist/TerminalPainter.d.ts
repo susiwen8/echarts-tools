@@ -1,4 +1,5 @@
 import Storage from 'zrender/lib/Storage.js';
+import { TerminalInteractionRenderState } from './TerminalInteraction.js';
 export default class TerminalPainter {
     type: string;
     ssrOnly: boolean;
@@ -11,6 +12,7 @@ export default class TerminalPainter {
     private _opts;
     private _lastRenderResult;
     private _interactiveTinyMarkers;
+    private _interactionState;
     constructor(root: HTMLElement, storage: Storage, opts?: Record<string, unknown>);
     getType(): string;
     getViewportRoot(): HTMLElement;
@@ -20,6 +22,7 @@ export default class TerminalPainter {
     };
     refresh(): void;
     clear(): void;
+    setInteractionState(state: TerminalInteractionRenderState | null): void;
     renderToString(): string;
     getLastRenderResult(): string;
     resize(width?: number | string, height?: number | string): void;
@@ -43,5 +46,8 @@ export default class TerminalPainter {
     private _collectInteractiveTinyMarkers;
     private _isDuplicateEffectTinyMarker;
     private _getTinyMarkerKey;
+    private _paintInteractionOverlay;
+    private _paintInteractionBar;
+    private _paintInteractionPoint;
     private _getGlobalRect;
 }

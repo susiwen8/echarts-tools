@@ -2,7 +2,11 @@
   "version": "5",
   "specifiers": {
     "npm:echarts@*": "6.0.0",
-    "npm:tslib@^2.3.0": "2.3.0"
+    "npm:echarts@6": "6.0.0",
+    "npm:esbuild@~0.8.39": "0.8.57",
+    "npm:tslib@^2.3.0": "2.3.0",
+    "npm:typescript@4.4.3": "4.4.3",
+    "npm:zrender@6": "6.0.0"
   },
   "npm": {
     "echarts@6.0.0": {
@@ -12,8 +16,17 @@
         "zrender"
       ]
     },
+    "esbuild@0.8.57": {
+      "integrity": "sha512-j02SFrUwFTRUqiY0Kjplwjm1psuzO1d6AjaXKuOR9hrY0HuPsT6sV42B6myW34h1q4CRy+Y3g4RU/cGJeI/nNA==",
+      "scripts": true,
+      "bin": true
+    },
     "tslib@2.3.0": {
       "integrity": "sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg=="
+    },
+    "typescript@4.4.3": {
+      "integrity": "sha512-4xfscpisVgqqDfPaJo5vkd+Qd/ItkoagnHpufr+i2QCHBsNYp+G7UAoyFl8aPtx879u38wPV65rZ8qbGZijalA==",
+      "bin": true
     },
     "zrender@6.0.0": {
       "integrity": "sha512-41dFXEEXuJpNecuUQq6JlbybmnHaqqpGlbH1yxnA5V9MMP4SbohSVZsJIwz+zdjQXSSlR1Vc34EgH1zxyTDvhg==",
@@ -25,7 +38,11 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
-        "npm:tslib@^2.3.0"
+        "npm:echarts@6",
+        "npm:esbuild@~0.8.39",
+        "npm:tslib@^2.3.0",
+        "npm:typescript@4.4.3",
+        "npm:zrender@6"
       ]
     }
   }

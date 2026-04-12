@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 const pkgDir = path.dirname(fileURLToPath(import.meta.url));
 const esbuild = require('esbuild');
 const distDir = path.join(pkgDir, 'dist');
-const tslibPath = require.resolve('tslib/tslib.es6.js');
+const tslibPath = path.join(path.dirname(require.resolve('tslib')), 'tslib.es6.js');
 const tscPath = require.resolve('typescript/bin/tsc');
 const typeOnly = process.argv.includes('--types-only');
 

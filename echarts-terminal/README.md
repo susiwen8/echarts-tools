@@ -61,6 +61,25 @@ player.stop();
 - write the first frame to the target output
 - rerender in place after later `setOption()` / `resize()`
 - restore the cursor when `stop()` or `chart.dispose()` is called
+- listen for keyboard input on TTY stdin by default
+
+## Keyboard Interaction
+
+When a player is attached to a real terminal, press `Enter` to enter interaction mode.
+
+- `Left / Right`: move across data points
+- `Up / Down`: switch series at the current category/index
+- `Esc`: exit interaction mode
+
+The terminal renderer will show an inline info strip with the focused data point because terminal charts do not support browser hover tooltips.
+
+Interactive demo:
+
+```bash
+npm run showcase:interactive
+```
+
+Use `q` or `Ctrl+C` to quit the demo process.
 
 Each patched terminal chart also gets a convenience method:
 
@@ -85,5 +104,6 @@ npm run smoke:contract
 npm run smoke
 npm run smoke:live-gallery
 npm run showcase
+npm run showcase:interactive
 npm run showcase:live
 ```

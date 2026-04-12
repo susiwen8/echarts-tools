@@ -476,6 +476,7 @@ var TerminalPainter = class {
     this._terminalHeight = 0;
     this._lastRenderResult = "";
     this._interactiveTinyMarkers = new Set();
+    this._interactionState = null;
     this.root = root || void 0;
     this.storage = storage || new Storage();
     this._opts = opts;
@@ -496,6 +497,9 @@ var TerminalPainter = class {
   clear() {
     this._lastRenderResult = "";
   }
+  setInteractionState(state) {
+    this._interactionState = state;
+  }
   renderToString() {
     const buffer = new TerminalCellBuffer_default(this._terminalWidth, this._terminalHeight);
     const list = this.storage.getDisplayList(true);
@@ -505,6 +509,7 @@ var TerminalPainter = class {
     for (let i = 0; i < list.length; i++) {
       this._paintDisplayable(buffer, list[i], scaleX, scaleY);
     }
+    this._paintInteractionOverlay(buffer, scaleX, scaleY);
     this._lastRenderResult = buffer.toString();
     return this._lastRenderResult;
   }
@@ -699,6 +704,45 @@ var TerminalPainter = class {
     });
     return `${cx}:${cy}:${fill ? fill.join(",") : ""}:${stroke ? stroke.join(",") : ""}`;
   }
+  _paintInteractionOverlay(buffer, scaleX, scaleY) {
+    if (!this._interactionState || !this._interactionState.active) {
+      return;
+    }
+    buffer.drawText(0, 0, this._interactionState.infoText, this._interactionState.color);
+    if (this._interactionState.kind === "bar") {
+      this._paintInteractionBar(buffer, scaleX, scaleY);
+      return;
+    }
+    this._paintInteractionPoint(buffer, scaleX, scaleY);
+  }
+  _paintInteractionBar(buffer, scaleX, scaleY) {
+    const state = this._interactionState;
+    if (!state || state.width == null || state.height == null) {
+      return;
+    }
+    const left = Math.max(0, Math.floor((state.x - state.width / 2) / scaleX));
+    const right = Math.min(buffer.width - 1, Math.ceil((state.x + state.width / 2) / scaleX));
+    const top = Math.max(0, Math.floor(state.y / scaleY));
+    const bottom = Math.min(buffer.logicalHeight - 1, Math.ceil((state.y + state.height) / scaleY));
+    for (let y = top; y <= bottom; y++) {
+      for (let x = left; x <= right; x++) {
+        buffer.setPixel(x, y, state.color);
+      }
+    }
+  }
+  _paintInteractionPoint(buffer, scaleX, scaleY) {
+    const state = this._interactionState;
+    if (!state) {
+      return;
+    }
+    const cx = state.x / scaleX;
+    const cy = state.y / scaleY;
+    buffer.setPixel(cx - 1, cy, state.color);
+    buffer.setPixel(cx, cy, state.color);
+    buffer.setPixel(cx + 1, cy, state.color);
+    buffer.setPixel(cx, cy - 1, state.color);
+    buffer.setPixel(cx, cy + 1, state.color);
+  }
   _getGlobalRect(el) {
     const rect = el.getBoundingRect().clone();
     const transform = el.getComputedTransform();
@@ -810,6 +854,292 @@ function normalizeTerminalChartOption(option) {
   return next;
 }
 
+// src/TerminalInteraction.ts
+var SUPPORTED_SERIES = new Set(["bar", "line", "scatter"]);
+var FOCUS_COLOR = [255, 255, 255];
+function isPlainObject2(value) {
+  return !!value && Object.prototype.toString.call(value) === "[object Object]";
+}
+function formatScalar2(value) {
+  if (value == null) {
+    return "";
+  }
+  if (typeof value === "number") {
+    return Number.isInteger(value) ? String(value) : String(+value.toFixed(2));
+  }
+  return String(value);
+}
+function parseColor(color) {
+  if (typeof color !== "string") {
+    return [255, 255, 255];
+  }
+  const hex = color.trim();
+  if (/^#[0-9a-f]{6}$/i.test(hex)) {
+    return [
+      parseInt(hex.slice(1, 3), 16),
+      parseInt(hex.slice(3, 5), 16),
+      parseInt(hex.slice(5, 7), 16)
+    ];
+  }
+  return [255, 255, 255];
+}
+function getSeriesColor(seriesOption) {
+  var _a;
+  const lineStyle = isPlainObject2(seriesOption.lineStyle) ? seriesOption.lineStyle : {};
+  const itemStyle = isPlainObject2(seriesOption.itemStyle) ? seriesOption.itemStyle : {};
+  return parseColor((_a = lineStyle.color) != null ? _a : itemStyle.color);
+}
+function getSeriesValue(seriesOption, dataIndex) {
+  const data = Array.isArray(seriesOption.data) ? seriesOption.data : [];
+  const item = data[dataIndex];
+  if (Array.isArray(item)) {
+    return item;
+  }
+  if (isPlainObject2(item) && "value" in item) {
+    return item.value;
+  }
+  return item;
+}
+function getXAxisLabel(option, seriesOption, dataIndex) {
+  const xAxisIndex = typeof seriesOption.xAxisIndex === "number" ? seriesOption.xAxisIndex : 0;
+  const xAxis = Array.isArray(option.xAxis) ? option.xAxis[xAxisIndex] : option.xAxis;
+  if (isPlainObject2(xAxis) && Array.isArray(xAxis.data)) {
+    return formatScalar2(xAxis.data[dataIndex]);
+  }
+  return String(dataIndex);
+}
+function getPointValueText(seriesType, seriesOption, dataIndex) {
+  const rawValue = getSeriesValue(seriesOption, dataIndex);
+  if (seriesType === "scatter") {
+    if (Array.isArray(rawValue)) {
+      return rawValue.map((item) => formatScalar2(item)).join(",");
+    }
+    return formatScalar2(rawValue);
+  }
+  if (Array.isArray(rawValue)) {
+    return formatScalar2(rawValue[rawValue.length - 1]);
+  }
+  return formatScalar2(rawValue);
+}
+function buildInfoText(point) {
+  const seriesLabel = point.seriesName || point.seriesType;
+  return `INTERACTIVE ${seriesLabel} ${point.xText}:${point.valueText}  Esc exit`;
+}
+function getAnchor(seriesType, rect) {
+  if (seriesType === "bar") {
+    return {
+      x: rect.x + rect.width / 2,
+      y: rect.y
+    };
+  }
+  return {
+    x: rect.x + rect.width / 2,
+    y: rect.y + rect.height / 2
+  };
+}
+function collectNavigableSeries(chart) {
+  var _a, _b;
+  const model = (_a = chart.getModel) == null ? void 0 : _a.call(chart);
+  const option = ((_b = chart.getOption) == null ? void 0 : _b.call(chart)) || {};
+  if (!model) {
+    return [];
+  }
+  const seriesList = [];
+  model.eachSeries((seriesModel) => {
+    var _a2;
+    if (!SUPPORTED_SERIES.has(seriesModel.subType)) {
+      return;
+    }
+    const seriesIndex = typeof seriesModel.componentIndex === "number" ? seriesModel.componentIndex : seriesList.length;
+    const seriesOption = Array.isArray(option.series) ? option.series[seriesIndex] : option.series;
+    if (!isPlainObject2(seriesOption)) {
+      return;
+    }
+    const data = seriesModel.getData();
+    const points = [];
+    for (let dataIndex = 0; dataIndex < data.count(); dataIndex++) {
+      const el = data.getItemGraphicEl(dataIndex);
+      if (!el || !el.getBoundingRect) {
+        continue;
+      }
+      const rect = el.getBoundingRect().clone();
+      const transform = (_a2 = el.getComputedTransform) == null ? void 0 : _a2.call(el);
+      if (transform) {
+        rect.applyTransform(transform);
+      }
+      const anchor = getAnchor(seriesModel.subType, rect);
+      points.push({
+        anchorX: anchor.x,
+        anchorY: anchor.y,
+        width: rect.width,
+        height: rect.height,
+        seriesIndex,
+        dataIndex,
+        seriesName: String(seriesOption.name || seriesModel.name || ""),
+        seriesType: seriesModel.subType,
+        xText: getXAxisLabel(option, seriesOption, dataIndex),
+        valueText: getPointValueText(seriesModel.subType, seriesOption, dataIndex),
+        color: getSeriesColor(seriesOption)
+      });
+    }
+    if (points.length) {
+      seriesList.push({
+        seriesIndex,
+        seriesName: String(seriesOption.name || seriesModel.name || ""),
+        points
+      });
+    }
+  });
+  return seriesList;
+}
+function removeDataListener(input, handler) {
+  if (input.off) {
+    input.off("data", handler);
+    return;
+  }
+  if (input.removeListener) {
+    input.removeListener("data", handler);
+  }
+}
+function createTerminalInteractionController(opts) {
+  var _a;
+  const input = opts.input;
+  const enabled = opts.enabled !== false && !!input;
+  if (!enabled || !input) {
+    return null;
+  }
+  let active = false;
+  let seriesCursor = 0;
+  let dataCursor = 0;
+  let disposed = false;
+  let seriesList = [];
+  function syncPoints() {
+    seriesList = collectNavigableSeries(opts.chart);
+    if (!seriesList.length) {
+      active = false;
+      seriesCursor = 0;
+      dataCursor = 0;
+      return;
+    }
+    if (seriesCursor >= seriesList.length) {
+      seriesCursor = seriesList.length - 1;
+    }
+    const pointCount = seriesList[seriesCursor].points.length;
+    if (dataCursor >= pointCount) {
+      dataCursor = pointCount - 1;
+    }
+  }
+  function currentPoint() {
+    syncPoints();
+    if (!active || !seriesList.length) {
+      return null;
+    }
+    return seriesList[seriesCursor].points[dataCursor] || null;
+  }
+  function rerender() {
+    if (!disposed) {
+      opts.onUpdate();
+    }
+  }
+  function enter() {
+    syncPoints();
+    if (!seriesList.length) {
+      return;
+    }
+    active = true;
+    seriesCursor = 0;
+    dataCursor = 0;
+    rerender();
+  }
+  function exit() {
+    if (!active) {
+      return;
+    }
+    active = false;
+    rerender();
+  }
+  function moveSeries(delta) {
+    if (!active || !seriesList.length) {
+      return;
+    }
+    seriesCursor = (seriesCursor + delta + seriesList.length) % seriesList.length;
+    dataCursor = Math.min(dataCursor, seriesList[seriesCursor].points.length - 1);
+    rerender();
+  }
+  function movePoint(delta) {
+    if (!active || !seriesList.length) {
+      return;
+    }
+    const points = seriesList[seriesCursor].points;
+    dataCursor = Math.max(0, Math.min(points.length - 1, dataCursor + delta));
+    rerender();
+  }
+  function handleInput(chunk) {
+    const text = typeof chunk === "string" ? chunk : new TextDecoder().decode(chunk);
+    if (text === "\r" || text === "\n") {
+      enter();
+      return;
+    }
+    if (text === "") {
+      exit();
+      return;
+    }
+    if (!active) {
+      return;
+    }
+    if (text === "[A") {
+      moveSeries(-1);
+    } else if (text === "[B") {
+      moveSeries(1);
+    } else if (text === "[C") {
+      movePoint(1);
+    } else if (text === "[D") {
+      movePoint(-1);
+    }
+  }
+  if (input.setRawMode && input.isTTY !== false) {
+    input.setRawMode(true);
+  }
+  (_a = input.resume) == null ? void 0 : _a.call(input);
+  input.on("data", handleInput);
+  return {
+    isActive() {
+      return active;
+    },
+    prepareFrame(painter) {
+      var _a2, _b;
+      const point = currentPoint();
+      if (!point || !active) {
+        (_a2 = painter.setInteractionState) == null ? void 0 : _a2.call(painter, null);
+        return;
+      }
+      (_b = painter.setInteractionState) == null ? void 0 : _b.call(painter, {
+        active: true,
+        infoText: buildInfoText(point),
+        kind: point.seriesType === "bar" ? "bar" : "point",
+        x: point.anchorX,
+        y: point.anchorY,
+        width: point.width,
+        height: point.height,
+        color: FOCUS_COLOR
+      });
+    },
+    stop() {
+      var _a2;
+      if (disposed) {
+        return;
+      }
+      disposed = true;
+      active = false;
+      removeDataListener(input, handleInput);
+      if (input.setRawMode && input.isTTY !== false) {
+        input.setRawMode(false);
+      }
+      (_a2 = input.pause) == null ? void 0 : _a2.call(input);
+    }
+  };
+}
+
 // src/TerminalPlayer.ts
 var HIDE_CURSOR = "[?25l";
 var SHOW_CURSOR = "[?25h";
@@ -818,6 +1148,10 @@ var activePlayers = new WeakMap();
 function resolveDefaultOutput() {
   const processLike = globalThis.process;
   return processLike && processLike.stdout ? processLike.stdout : null;
+}
+function resolveDefaultInput() {
+  const processLike = globalThis.process;
+  return processLike && processLike.stdin ? processLike.stdin : null;
 }
 function moveToFrameStart(lineCount) {
   if (lineCount <= 0) {
@@ -831,9 +1165,11 @@ function createTerminalPlayer(chart, opts = {}) {
     return existing;
   }
   const output = opts.output === void 0 ? resolveDefaultOutput() : opts.output;
+  const input = opts.input === void 0 ? resolveDefaultInput() : opts.input;
   const autoRender = opts.autoRender !== false;
   const hideCursor = opts.hideCursor !== false;
   const clearOnStop = opts.clearOnStop !== false;
+  const interactive = opts.interactive !== false;
   const rawSetOption = chart.setOption ? chart.setOption.bind(chart) : null;
   const rawResize = chart.resize ? chart.resize.bind(chart) : null;
   const rawDispose = chart.dispose ? chart.dispose.bind(chart) : null;
@@ -841,6 +1177,7 @@ function createTerminalPlayer(chart, opts = {}) {
   let cursorHidden = false;
   let rendered = false;
   let lastLineCount = 0;
+  let interactionController = null;
   function write(chunk) {
     if (output && chunk) {
       output.write(chunk);
@@ -868,6 +1205,7 @@ function createTerminalPlayer(chart, opts = {}) {
       if (!chart.renderToTerminalString) {
         throw new Error("createTerminalPlayer requires a terminal chart.");
       }
+      interactionController == null ? void 0 : interactionController.prepareFrame(chart.getZr().painter);
       const frame = chart.renderToTerminalString();
       const lineCount = frame ? frame.split("\n").length : 0;
       if (output) {
@@ -908,6 +1246,7 @@ function createTerminalPlayer(chart, opts = {}) {
           chart.dispose = rawDispose;
         }
       }
+      interactionController == null ? void 0 : interactionController.stop();
       if (clearOnStop) {
         clearFrame(true);
       } else if (hideCursor && cursorHidden) {
@@ -920,6 +1259,16 @@ function createTerminalPlayer(chart, opts = {}) {
       return active;
     }
   };
+  interactionController = createTerminalInteractionController({
+    chart,
+    input,
+    enabled: interactive,
+    onUpdate() {
+      if (active) {
+        player.render();
+      }
+    }
+  });
   if (autoRender) {
     if (rawSetOption) {
       chart.setOption = function patchedTerminalSetOption(...args) {
