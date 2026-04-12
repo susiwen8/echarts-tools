@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "tslib": "../../node_modules/tslib/tslib.es6.js",
+    "zrender/": "../../node_modules/zrender/"
+  }
+}

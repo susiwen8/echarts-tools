@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECharts Terminal Cartesian Compare</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f4f1ea;
+            --panel: #fffdf8;
+            --border: #d7d0c3;
+            --ink: #1f2937;
+            --muted: #6b7280;
+            --terminal: #111827;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Iowan Old Style", "Palatino Linotype", serif;
+            background:
+                radial-gradient(circle at top left, rgba(252, 211, 77, 0.2), transparent 28%),
+                radial-gradient(circle at top right, rgba(56, 189, 248, 0.18), transparent 24%),
+                linear-gradient(180deg, #f8f4ec 0%, #efe8dc 100%);
+            color: var(--ink);
+        }
+
+        .wrap {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 36px;
+            line-height: 1.05;
+        }
+
+        .sub {
+            margin: 0 0 24px;
+            color: var(--muted);
+            font-size: 17px;
+        }
+
+        .sections {
+            display: grid;
+            gap: 24px;
+        }
+
+        .compare-block {
+            display: grid;
+            gap: 12px;
+        }
+
+        .compare-block h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .compare-block .caption {
+            margin: 0;
+            color: var(--muted);
+            font-size: 15px;
+            font-family: "Avenir Next", "Helvetica Neue", sans-serif;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: rgba(255, 253, 248, 0.84);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 16px 16px 20px;
+            box-shadow: 0 12px 40px rgba(31, 41, 55, 0.08);
+            backdrop-filter: blur(8px);
+        }
+
+        .panel h2 {
+            margin: 0 0 6px;
+            font-size: 18px;
+            font-family: "Avenir Next", "Helvetica Neue", sans-serif;
+        }
+
+        .panel p {
+            margin: 0 0 14px;
+            color: var(--muted);
+            font-size: 14px;
+            font-family: "Avenir Next", "Helvetica Neue", sans-serif;
+        }
+
+        [id^="browser-"][id$="-chart"] {
+            width: 100%;
+            height: 420px;
+            border-radius: 14px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .terminal-shell {
+            background: linear-gradient(180deg, #1f2937 0%, #0f172a 100%);
+            border-radius: 16px;
+            padding: 14px 16px 16px;
+            min-height: 420px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .terminal-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+        }
+
+        .dot.red { background: #fb7185; }
+        .dot.yellow { background: #fbbf24; }
+        .dot.green { background: #34d399; }
+
+        pre {
+            margin: 0;
+            white-space: pre;
+            color: #e5e7eb;
+            font-family: "SF Mono", "Menlo", "Consolas", monospace;
+            font-size: 12px;
+            line-height: 1.05;
+        }
+
+        .note {
+            margin-top: 18px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.66);
+            border: 1px solid var(--border);
+            font-family: "Avenir Next", "Helvetica Neue", sans-serif;
+            font-size: 14px;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <h1>Browser vs Terminal Cartesian Charts</h1>
+        <p class="sub">Same cartesian-series data, same ECharts codepath, different renderer target.</p>
+        <div id="sections" class="sections"></div>
+        <div class="note">
+            Current terminal output is still a coarse half-block rasterization. The biggest gaps are symbol rendering, wick/detail fidelity, grid-line subtlety, and title/axis text layout.
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "tslib": "../node_modules/tslib/tslib.es6.js",
+                "zrender/": "../node_modules/zrender/"
+            }
+        }
+    </script>
+
+    <script>
+        globalThis.process = {
+            env: {
+                NODE_ENV: 'production'
+            }
+        };
+    </script>
+
+    <script type="module">
+        import { normalizeTerminalOption } from './terminal-layout.mjs';
+        import * as echarts from '../node_modules/echarts/lib/export/core.js';
+        import {
+            BarChart,
+            LineChart,
+            ScatterChart,
+            HeatmapChart,
+            CandlestickChart,
+            BoxplotChart,
+            PictorialBarChart,
+            PieChart,
+            RadarChart,
+            GaugeChart,
+            FunnelChart,
+            SankeyChart,
+            TreeChart,
+            TreemapChart,
+            SunburstChart,
+            GraphChart,
+            ParallelChart,
+            ThemeRiverChart
+        } from '../node_modules/echarts/lib/export/charts.js';
+        import {
+            GridComponent,
+            LegendComponent,
+            TitleComponent,
+            VisualMapComponent,
+            RadarComponent,
+            ParallelComponent,
+            SingleAxisComponent
+        } from '../node_modules/echarts/lib/export/components.js';
+        import { SVGRenderer } from '../node_modules/echarts/lib/export/renderers.js';
+        import { TerminalRenderer, patchECharts, initTerminalChart } from '../dist/index.js';
+
+        echarts.use([
+            BarChart,
+            LineChart,
+            ScatterChart,
+            HeatmapChart,
+            CandlestickChart,
+            BoxplotChart,
+            PictorialBarChart,
+            PieChart,
+            RadarChart,
+            GaugeChart,
+            FunnelChart,
+            SankeyChart,
+            TreeChart,
+            TreemapChart,
+            SunburstChart,
+            GraphChart,
+            ParallelChart,
+            ThemeRiverChart,
+            GridComponent,
+            LegendComponent,
+            TitleComponent,
+            VisualMapComponent,
+            RadarComponent,
+            ParallelComponent,
+            SingleAxisComponent,
+            SVGRenderer,
+            TerminalRenderer
+        ]);
+        const terminalEcharts = patchECharts(echarts);
+        const sections = document.getElementById('sections');
+
+        const chartConfigs = [
+            {
+                id: 'bar',
+                title: 'Grouped Bar',
+                caption: 'Two-color grouped bars for width, spacing, and categorical grouping checks.',
+                browserDescription: 'SVG renderer in a normal browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Grouped Bars' },
+                    grid: { top: 60, bottom: 50, left: 50, right: 24 },
+                    xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] },
+                    yAxis: { type: 'value' },
+                    series: [
+                        { type: 'bar', name: 'North', itemStyle: { color: '#37A2FF' }, data: [120, 200, 150, 80, 70] },
+                        { type: 'bar', name: 'South', itemStyle: { color: '#F59E0B' }, data: [90, 140, 110, 160, 210] }
+                    ]
+                }
+            },
+            {
+                id: 'legend',
+                title: 'Legend Layout',
+                caption: 'Title-plus-legend coexistence check for multi-series terminal charts.',
+                browserDescription: 'SVG renderer with a normal legend row above the plot area.',
+                terminalDescription: 'ANSI frame with a dedicated legend row kept visible above the chart.',
+                option: {
+                    title: { text: 'Legend Layout' },
+                    legend: { top: 28, data: ['Revenue', 'Forecast', 'Target'] },
+                    grid: { top: 96, bottom: 50, left: 50, right: 24 },
+                    xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] },
+                    yAxis: { type: 'value' },
+                    series: [
+                        { name: 'Revenue', type: 'line', symbol: 'circle', symbolSize: 8, lineStyle: { width: 4, color: '#37A2FF' }, itemStyle: { color: '#37A2FF' }, data: [120, 182, 151, 234, 290, 330, 310] },
+                        { name: 'Forecast', type: 'line', symbol: 'none', lineStyle: { width: 3, color: '#F59E0B' }, data: [110, 160, 170, 220, 260, 300, 320] },
+                        { name: 'Target', type: 'line', symbol: 'none', lineStyle: { width: 2, color: '#6EE7B7' }, data: [100, 140, 180, 220, 260, 300, 340] }
+                    ]
+                }
+            },
+            {
+                id: 'line',
+                title: 'Regular Line',
+                caption: 'Single non-smooth line for geometry and label alignment checks.',
+                browserDescription: 'SVG renderer in a normal browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Weekly Revenue Trend' },
+                    grid: { top: 60, bottom: 50, left: 50, right: 24 },
+                    xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] },
+                    yAxis: { type: 'value' },
+                    series: [{
+                        type: 'line',
+                        symbol: 'circle',
+                        symbolSize: 9,
+                        lineStyle: { width: 4, color: '#2F4554' },
+                        itemStyle: { color: '#37A2FF' },
+                        data: [120, 182, 151, 234, 290, 330, 310]
+                    }]
+                }
+            },
+            {
+                id: 'stacked',
+                title: 'Stacked Line',
+                caption: 'Two stacked non-smooth lines for overlap, ordering, and multi-color visibility checks.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Stacked Lines' },
+                    grid: { top: 60, bottom: 50, left: 50, right: 24 },
+                    xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] },
+                    yAxis: { type: 'value' },
+                    series: [
+                        { type: 'line', stack: 'total', symbol: 'none', lineStyle: { width: 4, color: '#6EE7B7' }, data: [120, 132, 101, 134, 90, 230, 210] },
+                        { type: 'line', stack: 'total', symbol: 'none', lineStyle: { width: 4, color: '#F59E0B' }, data: [220, 182, 191, 234, 290, 330, 310] }
+                    ]
+                }
+            },
+            {
+                id: 'scatter',
+                title: 'Scatter',
+                caption: 'Value axes and point placement checks for non-bar cartesian symbols.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Scatter' },
+                    grid: { top: 60, bottom: 50, left: 50, right: 24 },
+                    xAxis: { type: 'value' },
+                    yAxis: { type: 'value' },
+                    series: [{ type: 'scatter', symbolSize: 12, itemStyle: { color: '#37A2FF' }, data: [[1, 2], [2, 5], [3, 3], [4, 6], [5, 4]] }]
+                }
+            },
+            {
+                id: 'heatmap',
+                title: 'Heatmap',
+                caption: 'Color quantization and cell grid structure are the main things to judge here.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Heatmap' },
+                    grid: { top: 60, bottom: 50, left: 60, right: 24 },
+                    xAxis: { type: 'category', data: ['A', 'B', 'C'] },
+                    yAxis: { type: 'category', data: ['X', 'Y', 'Z'] },
+                    visualMap: { min: 0, max: 10, show: false, inRange: { color: ['#313695', '#74add1', '#fdae61', '#a50026'] } },
+                    series: [{ type: 'heatmap', data: [[0, 0, 1], [1, 0, 4], [2, 0, 2], [0, 1, 6], [1, 1, 8], [2, 1, 5], [0, 2, 9], [1, 2, 10], [2, 2, 7]] }]
+                }
+            },
+            {
+                id: 'candlestick',
+                title: 'Candlestick',
+                caption: 'Up/down color contrast, wick visibility, and body spacing are the key checks.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Candlestick' },
+                    grid: { top: 60, bottom: 50, left: 50, right: 24 },
+                    xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] },
+                    yAxis: { scale: true },
+                    series: [{
+                        type: 'candlestick',
+                        itemStyle: { color: '#ef4444', color0: '#10b981', borderColor: '#ef4444', borderColor0: '#10b981' },
+                        data: [[100, 120, 90, 130], [120, 110, 100, 125], [110, 140, 105, 145], [140, 130, 120, 150], [130, 150, 125, 160]]
+                    }]
+                }
+            },
+            {
+                id: 'boxplot',
+                title: 'Boxplot',
+                caption: 'Median line, whiskers, and box widths should remain distinguishable even at low terminal resolution.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Boxplot' },
+                    grid: { top: 60, bottom: 50, left: 50, right: 24 },
+                    xAxis: { type: 'category', data: ['A', 'B', 'C'] },
+                    yAxis: { type: 'value' },
+                    series: [{
+                        type: 'boxplot',
+                        itemStyle: { color: '#93c5fd', borderColor: '#2563eb' },
+                        data: [[20, 30, 40, 50, 60], [25, 35, 45, 55, 65], [30, 38, 46, 58, 70]]
+                    }]
+                }
+            },
+            {
+                id: 'pictorial-bar',
+                title: 'Pictorial Bar',
+                caption: 'Repeated symbols compress into coarse vertical stacks in the terminal version.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Pictorial Bar' },
+                    grid: { top: 60, bottom: 50, left: 50, right: 24 },
+                    xAxis: { type: 'category', data: ['A', 'B', 'C'] },
+                    yAxis: { type: 'value' },
+                    series: [{ type: 'pictorialBar', symbol: 'rect', symbolRepeat: true, symbolSize: [12, 6], itemStyle: { color: '#8b5cf6' }, data: [12, 18, 9] }]
+                }
+            },
+            {
+                id: 'pie',
+                title: 'Pie',
+                caption: 'Radial segment readability and label fallback on a terminal canvas.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Pie' },
+                    series: [{ type: 'pie', radius: ['30%', '65%'], data: [{ name: 'A', value: 40 }, { name: 'B', value: 32 }, { name: 'C', value: 28 }] }]
+                }
+            },
+            {
+                id: 'radar',
+                title: 'Radar',
+                caption: 'Polygon webs and filled regions stress non-cartesian path generation.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Radar' },
+                    radar: { indicator: [{ name: 'A', max: 100 }, { name: 'B', max: 100 }, { name: 'C', max: 100 }, { name: 'D', max: 100 }, { name: 'E', max: 100 }] },
+                    series: [{ type: 'radar', data: [{ value: [80, 65, 90, 70, 60] }] }]
+                }
+            },
+            {
+                id: 'gauge',
+                title: 'Gauge',
+                caption: 'Arc progress and center text test curved primitives and annotation placement.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Gauge' },
+                    series: [{ type: 'gauge', progress: { show: true }, detail: { formatter: '{value}%' }, data: [{ value: 68, name: 'Score' }] }]
+                }
+            },
+            {
+                id: 'funnel',
+                title: 'Funnel',
+                caption: 'Tapered polygon widths highlight shape discretization in the terminal renderer.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Funnel' },
+                    series: [{ type: 'funnel', data: [{ name: 'Visit', value: 100 }, { name: 'Query', value: 80 }, { name: 'Order', value: 50 }] }]
+                }
+            },
+            {
+                id: 'sankey',
+                title: 'Sankey',
+                caption: 'Node blocks and link ribbons expose how well the terminal renderer keeps flow structure.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Sankey' },
+                    series: [{ type: 'sankey', data: [{ name: 'A' }, { name: 'B' }, { name: 'C' }], links: [{ source: 'A', target: 'B', value: 3 }, { source: 'B', target: 'C', value: 2 }] }]
+                }
+            },
+            {
+                id: 'tree',
+                title: 'Tree',
+                caption: 'Branch routing and leaf labels stress hierarchical non-cartesian layout.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Tree' },
+                    series: [{ type: 'tree', data: [{ name: 'Root', children: [{ name: 'Left' }, { name: 'Right', children: [{ name: 'Leaf' }] }] }] }]
+                }
+            },
+            {
+                id: 'treemap',
+                title: 'Treemap',
+                caption: 'Area partitioning shows how coarse cell buffers handle nested rectangles.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Treemap' },
+                    series: [{ type: 'treemap', data: [{ name: 'A', value: 6 }, { name: 'B', value: 4 }, { name: 'C', value: 3 }] }]
+                }
+            },
+            {
+                id: 'sunburst',
+                title: 'Sunburst',
+                caption: 'Nested radial segments combine hierarchy with circular geometry.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Sunburst' },
+                    series: [{ type: 'sunburst', data: [{ name: 'A', value: 5, children: [{ name: 'A1', value: 2 }, { name: 'A2', value: 3 }] }, { name: 'B', value: 4 }] }]
+                }
+            },
+            {
+                id: 'graph',
+                title: 'Graph',
+                caption: 'Free-positioned nodes and links reveal how custom x/y layouts map to terminal cells.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Graph' },
+                    series: [{ type: 'graph', layout: 'none', roam: false, data: [{ name: 'A', x: 60, y: 80 }, { name: 'B', x: 180, y: 120 }, { name: 'C', x: 120, y: 200 }], links: [{ source: 0, target: 1 }, { source: 1, target: 2 }] }]
+                }
+            },
+            {
+                id: 'parallel',
+                title: 'Parallel',
+                caption: 'Multiple axes and line crossings are useful for checking density and label crowding.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'Parallel' },
+                    parallelAxis: [{ dim: 0, name: 'A', max: 100 }, { dim: 1, name: 'B', max: 100 }, { dim: 2, name: 'C', max: 100 }],
+                    series: [{ type: 'parallel', data: [[80, 70, 60], [60, 90, 50]] }]
+                }
+            },
+            {
+                id: 'theme-river',
+                title: 'ThemeRiver',
+                caption: 'Time-based layered bands are a good stress test for soft curves and filled shapes.',
+                browserDescription: 'Reference rendering with SVG in a browser container.',
+                terminalDescription: 'ANSI frame rendered by the experimental terminal painter.',
+                option: {
+                    title: { text: 'ThemeRiver' },
+                    singleAxis: { type: 'time' },
+                    series: [{ type: 'themeRiver', data: [['2025/01/01', 10, 'A'], ['2025/01/02', 15, 'A'], ['2025/01/01', 8, 'B'], ['2025/01/02', 11, 'B']] }]
+                }
+            }
+        ];
+
+        sections.innerHTML = chartConfigs.map(config => `
+            <section class="compare-block">
+                <h2>${config.title}</h2>
+                <p class="caption">${config.caption}</p>
+                <div class="grid">
+                    <section class="panel">
+                        <h2>Browser ECharts</h2>
+                        <p>${config.browserDescription}</p>
+                        <div id="browser-${config.id}-chart"></div>
+                    </section>
+                    <section class="panel">
+                        <h2>Terminal Renderer</h2>
+                        <p>${config.terminalDescription}</p>
+                        <div class="terminal-shell">
+                            <div class="terminal-bar">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </div>
+                            <pre id="terminal-${config.id}-chart"></pre>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        `).join('');
+
+        function normalizeCompareOption(option) {
+            const cloned = JSON.parse(JSON.stringify(option));
+            return cloned;
+        }
+
+        function normalizeBrowserOption(option) {
+            const cloned = normalizeCompareOption(option);
+            return cloned;
+        }
+
+        for (const config of chartConfigs) {
+            const browserChart = echarts.init(document.getElementById(`browser-${config.id}-chart`), null, {
+                renderer: 'svg'
+            });
+            browserChart.setOption(normalizeBrowserOption(config.option));
+
+            const terminalChart = initTerminalChart(terminalEcharts, null, {
+                width: 72,
+                height: 22
+            });
+            terminalChart.setOption(normalizeTerminalOption(config.option));
+            document.getElementById(`terminal-${config.id}-chart`).innerHTML = ansiToHtml(
+                terminalChart.renderToTerminalString()
+            );
+        }
+
+        function escapeHtml(value) {
+            return value
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;');
+        }
+
+        function ansiToHtml(input) {
+            const tokens = input.split(/(\u001b\[[0-9;]*m)/g);
+            let fg = '';
+            let bg = '';
+            let output = '';
+
+            for (const token of tokens) {
+                if (!token) {
+                    continue;
+                }
+                if (token.startsWith('\u001b[')) {
+                    if (token === '\u001b[0m') {
+                        fg = '';
+                        bg = '';
+                        continue;
+                    }
+                    const match = token.match(/\u001b\[(38|48);2;(\d+);(\d+);(\d+)m/);
+                    if (match) {
+                        const css = `rgb(${match[2]}, ${match[3]}, ${match[4]})`;
+                        if (match[1] === '38') {
+                            fg = css;
+                        }
+                        else {
+                            bg = css;
+                        }
+                    }
+                    continue;
+                }
+                let style = '';
+                if (fg) {
+                    style += `color:${fg};`;
+                }
+                if (bg) {
+                    style += `background:${bg};`;
+                }
+                output += style
+                    ? `<span style="${style}">${escapeHtml(token)}</span>`
+                    : escapeHtml(token);
+            }
+            return output;
+        }
+    </script>
+</body>
+</html>

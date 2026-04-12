@@ -1,0 +1,26 @@
+{
+  "name": "echarts-cli",
+  "version": "0.1.0",
+  "description": "Offline knowledge CLI for Apache ECharts users",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "bin": {
+    "echarts": "bin/echarts.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "data",
+    "README.md"
+  ],
+  "scripts": {
+    "cli": "node bin/echarts.js",
+    "build:data": "node scripts/build-data.js",
+    "prepack": "node scripts/build-data.js",
+    "start": "node bin/echarts.js",
+    "test": "node --test __tests__/cli.test.js"
+  },
+  "dependencies": {
+    "commander": "2.11.0"
+  }
+}

@@ -1,0 +1,47 @@
+import Storage from 'zrender/lib/Storage.js';
+export default class TerminalPainter {
+    type: string;
+    ssrOnly: boolean;
+    storage: Storage;
+    root?: HTMLElement;
+    private _width;
+    private _height;
+    private _terminalWidth;
+    private _terminalHeight;
+    private _opts;
+    private _lastRenderResult;
+    private _interactiveTinyMarkers;
+    constructor(root: HTMLElement, storage: Storage, opts?: Record<string, unknown>);
+    getType(): string;
+    getViewportRoot(): HTMLElement;
+    getViewportRootOffset(): {
+        offsetLeft: number;
+        offsetTop: number;
+    };
+    refresh(): void;
+    clear(): void;
+    renderToString(): string;
+    getLastRenderResult(): string;
+    resize(width?: number | string, height?: number | string): void;
+    getWidth(): number;
+    getHeight(): number;
+    dispose(): void;
+    refreshHover(): void;
+    configLayer(): void;
+    setBackgroundColor(): void;
+    private _paintDisplayable;
+    private _isPathLike;
+    private _isTextLike;
+    private _shouldSkipPath;
+    private _getStrokeOpacity;
+    private _getStrokeMinLuminance;
+    private _getStrokeMode;
+    private _getFillOpacity;
+    private _getFillMode;
+    private _paintTinyMarker;
+    private _paintCompactSwatch;
+    private _collectInteractiveTinyMarkers;
+    private _isDuplicateEffectTinyMarker;
+    private _getTinyMarkerKey;
+    private _getGlobalRect;
+}

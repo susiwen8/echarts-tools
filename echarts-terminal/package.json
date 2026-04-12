@@ -1,0 +1,47 @@
+{
+  "name": "echarts-terminal",
+  "version": "0.1.0",
+  "description": "Terminal renderer plugin for Apache ECharts",
+  "license": "Apache-2.0",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build:types": "node build.mjs --types-only",
+    "build": "node build.mjs",
+    "smoke:contract": "npm run build && node test/node/terminal-plugin-contract.mjs && node test/node/terminal-data-label-contract.mjs && node test/node/terminal-effect-scatter-contract.mjs && node test/node/terminal-compare-contract.mjs && node test/node/terminal-showcase-contract.mjs",
+    "smoke": "npm run smoke:contract && node test/node/terminal-plugin-smoke.mjs",
+    "smoke:live": "npm run smoke:contract && node test/node/terminal-plugin-live.mjs",
+    "smoke:live-gallery": "npm run smoke:contract && node test/node/terminal-plugin-live-gallery.mjs",
+    "smoke:bun": "npm run smoke:contract && sh -c '\"${BUN_BIN:-bun}\" run test/node/terminal-plugin-smoke.mjs'",
+    "smoke:deno": "npm run build && sh -c '\"${DENO_BIN:-deno}\" run -A --node-modules-dir=auto --import-map test/deno/import_map.json test/deno/terminal-plugin-smoke.mjs'",
+    "smoke:frame": "npm run build && node test/node/terminal.mjs",
+    "showcase": "npm run build && node test/node/terminal-showcase.mjs",
+    "showcase:live": "npm run build && node test/node/terminal-live.mjs"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "echarts": "^6.0.0",
+    "esbuild": "^0.8.39",
+    "typescript": "4.4.3",
+    "zrender": "^6.0.0"
+  },
+  "peerDependencies": {
+    "echarts": "^6.0.0",
+    "zrender": "^6.0.0"
+  }
+}
