@@ -71,6 +71,7 @@ jobs:
 
   echarts-terminal-visual:
     name: echarts-terminal visual
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     defaults:
       run:
