@@ -1,4 +1,5 @@
 .omx/
 .DS_Store
 **/node_modules/
+echarts-terminal/dist/
 echarts-terminal/test/visual/artifacts/

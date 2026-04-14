@@ -21,6 +21,7 @@
   "scripts": {
     "build:types": "node build.mjs --types-only",
     "build": "node build.mjs",
+    "prepack": "npm run build",
     "coverage:src": "node ./node_modules/c8/bin/c8.js --exclude build.mjs --all --src src --reporter=text npm run smoke",
     "smoke:contract": "npm run build && node --loader ./test/node/ts-loader.mjs test/node/src-unit-contract.mjs && node test/node/terminal-plugin-contract.mjs && node test/node/terminal-data-label-contract.mjs && node test/node/terminal-effect-scatter-contract.mjs && node test/node/terminal-interaction-contract.mjs && node test/node/terminal-compare-contract.mjs && node test/node/terminal-showcase-contract.mjs",
     "smoke": "npm run smoke:contract && node test/node/terminal-plugin-smoke.mjs",

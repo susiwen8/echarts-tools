@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    paths:
+      - '.github/workflows/**'
+      - 'README.md'
+      - 'echarts-cli/**'
+      - 'echarts-terminal/**'
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - 'README.md'
+      - 'echarts-cli/**'
+      - 'echarts-terminal/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  echarts-cli:
+    name: echarts-cli
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: echarts-cli
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: echarts-cli/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build metadata
+        run: npm run build:data
+
+      - name: Run tests
+        run: npm test
+
+  echarts-terminal-smoke:
+    name: echarts-terminal smoke
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: echarts-terminal
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: echarts-terminal/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run smoke contract suite
+        run: npm run smoke:contract
+
+  echarts-terminal-visual:
+    name: echarts-terminal visual
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: echarts-terminal
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: echarts-terminal/package-lock.json
+
+      - name: Setup Google Chrome
+        id: chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run visual regression tests
+        run: npm run visual:test
+        env:
+          CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
