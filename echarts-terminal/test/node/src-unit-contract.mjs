@@ -140,6 +140,20 @@ assert.equal(ANSI_RESET, '\u001b[0m');
     });
     assert.deepEqual(mixedSeries.series, [5]);
     assert.equal(normalizeTerminalChartOption({ series: 'noop' }).series, 'noop');
+
+    const legendNormalized = normalizeTerminalChartOption({
+        legend: {
+            data: ['Alpha', 'Beta']
+        },
+        series: [
+            { name: 'Alpha', type: 'bar', itemStyle: { color: '#112233' }, data: [1, 2] },
+            { name: 'Beta', type: 'line', lineStyle: { color: '#445566' }, data: [3, 4] }
+        ]
+    });
+    assert.deepEqual(legendNormalized.legend.data, [
+        { name: 'Alpha', itemStyle: { color: '#112233', opacity: 1 } },
+        { name: 'Beta', itemStyle: { color: '#445566', opacity: 1 } }
+    ]);
 }
 
 // index.ts branches

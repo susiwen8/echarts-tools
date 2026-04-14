@@ -65,6 +65,16 @@ assert.match(
 );
 assert.match(
     compareHtml,
+    /class="terminal-grid"/,
+    'terminal-compare should render terminal frames into a dedicated cell grid container'
+);
+assert.doesNotMatch(
+    compareHtml,
+    /<pre id="terminal-[^"]+-chart"><\/pre>/,
+    'terminal-compare should not rely on preformatted text for terminal screenshots'
+);
+assert.match(
+    compareHtml,
     /id:\s*'legend'[\s\S]*title:\s*'Legend Layout'/,
     'terminal-compare should keep the legend comparison case wired through the shared layout flow'
 );

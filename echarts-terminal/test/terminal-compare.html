@@ -130,13 +130,12 @@
         .dot.yellow { background: #fbbf24; }
         .dot.green { background: #34d399; }
 
-        pre {
-            margin: 0;
-            white-space: pre;
-            color: #e5e7eb;
-            font-family: "SF Mono", "Menlo", "Consolas", monospace;
-            font-size: 12px;
-            line-height: 1.05;
+        .terminal-grid {
+            display: block;
+        }
+
+        .terminal-grid canvas {
+            display: block;
         }
 
         .note {
@@ -544,7 +543,7 @@
                                 <span class="dot yellow"></span>
                                 <span class="dot green"></span>
                             </div>
-                            <pre id="terminal-${config.id}-chart"></pre>
+                            <div id="terminal-${config.id}-chart" class="terminal-grid"></div>
                         </div>
                     </section>
                 </div>
@@ -561,6 +560,9 @@
             return cloned;
         }
 
+        const CELL_WIDTH = 7;
+        const CELL_HEIGHT = 14;
+
         for (const config of chartConfigs) {
             const browserChart = echarts.init(document.getElementById(`browser-${config.id}-chart`), null, {
                 renderer: 'svg'
@@ -572,7 +574,8 @@
                 height: 22
             });
             terminalChart.setOption(normalizeTerminalOption(config.option));
-            document.getElementById(`terminal-${config.id}-chart`).innerHTML = ansiToHtml(
+            renderTerminalGrid(
+                document.getElementById(`terminal-${config.id}-chart`),
                 terminalChart.renderToTerminalString()
             );
         }
@@ -584,11 +587,70 @@
                 .replaceAll('>', '&gt;');
         }
 
-        function ansiToHtml(input) {
+        function renderTerminalGrid(target, input) {
+            const rows = ansiToCells(input);
+            const columnCount = rows.reduce((max, row) => Math.max(max, row.length), 0);
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, columnCount * CELL_WIDTH);
+            canvas.height = Math.max(1, rows.length * CELL_HEIGHT);
+            canvas.style.width = `${canvas.width}px`;
+            canvas.style.height = `${canvas.height}px`;
+            const ctx = canvas.getContext('2d');
+            ctx.font = '12px "SF Mono", "Menlo", "Consolas", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+                for (let colIndex = 0; colIndex < columnCount; colIndex++) {
+                    drawTerminalCell(
+                        ctx,
+                        colIndex * CELL_WIDTH,
+                        rowIndex * CELL_HEIGHT,
+                        rows[rowIndex][colIndex] || { char: ' ', fg: '', bg: '' }
+                    );
+                }
+            }
+
+            target.replaceChildren(canvas);
+        }
+
+        function drawTerminalCell(ctx, x, y, cell) {
+            if (cell.bg) {
+                ctx.fillStyle = cell.bg;
+                ctx.fillRect(x, y, CELL_WIDTH, CELL_HEIGHT);
+            }
+
+            if (cell.char === '█' && cell.fg) {
+                ctx.fillStyle = cell.fg;
+                ctx.fillRect(x, y, CELL_WIDTH, CELL_HEIGHT);
+                return;
+            }
+
+            if (cell.char === '▀' && cell.fg) {
+                ctx.fillStyle = cell.fg;
+                ctx.fillRect(x, y, CELL_WIDTH, Math.ceil(CELL_HEIGHT / 2));
+                return;
+            }
+
+            if (cell.char === '▄' && cell.fg) {
+                ctx.fillStyle = cell.fg;
+                ctx.fillRect(x, y + Math.floor(CELL_HEIGHT / 2), CELL_WIDTH, Math.ceil(CELL_HEIGHT / 2));
+                return;
+            }
+
+            if (cell.char === ' ') {
+                return;
+            }
+
+            ctx.fillStyle = cell.fg || '#e5e7eb';
+            ctx.fillText(cell.char, x + CELL_WIDTH / 2, y + CELL_HEIGHT / 2 + 0.5);
+        }
+
+        function ansiToCells(input) {
             const tokens = input.split(/(\u001b\[[0-9;]*m)/g);
             let fg = '';
             let bg = '';
-            let output = '';
+            const rows = [[]];
 
             for (const token of tokens) {
                 if (!token) {
@@ -612,18 +674,15 @@
                     }
                     continue;
                 }
-                let style = '';
-                if (fg) {
-                    style += `color:${fg};`;
+                for (const char of token) {
+                    if (char === '\n') {
+                        rows.push([]);
+                        continue;
+                    }
+                    rows[rows.length - 1].push({ char, fg, bg });
                 }
-                if (bg) {
-                    style += `background:${bg};`;
-                }
-                output += style
-                    ? `<span style="${style}">${escapeHtml(token)}</span>`
-                    : escapeHtml(token);
             }
-            return output;
+            return rows;
         }
     </script>
 </body>

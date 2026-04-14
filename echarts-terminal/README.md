@@ -6,6 +6,50 @@ The published bundle externalizes both `echarts` and `zrender`, so the host app 
 
 For local Deno smoke runs against the unpublished repo build, use an import map that rewrites `zrender/...` to `npm:zrender/...`.
 
+## Preview
+
+These are real terminal-rendered frames captured from the repo's visual baseline suite, not mockups. The gallery below covers all currently supported showcase/baseline examples:
+
+| Bar | Line |
+| --- | --- |
+| ![Bar chart rendered in terminal](./docs/readme/bar.png) | ![Line chart rendered in terminal](./docs/readme/line.png) |
+
+| Stacked Line | Scatter |
+| --- | --- |
+| ![Stacked line chart rendered in terminal](./docs/readme/stacked.png) | ![Scatter chart rendered in terminal](./docs/readme/scatter.png) |
+
+| Heatmap | Candlestick |
+| --- | --- |
+| ![Heatmap rendered in terminal](./docs/readme/heatmap.png) | ![Candlestick chart rendered in terminal](./docs/readme/candlestick.png) |
+
+| Boxplot | Pictorial Bar |
+| --- | --- |
+| ![Boxplot rendered in terminal](./docs/readme/boxplot.png) | ![Pictorial bar chart rendered in terminal](./docs/readme/pictorial-bar.png) |
+
+| Pie | Radar |
+| --- | --- |
+| ![Pie chart rendered in terminal](./docs/readme/pie.png) | ![Radar chart rendered in terminal](./docs/readme/radar.png) |
+
+| Gauge | Funnel |
+| --- | --- |
+| ![Gauge chart rendered in terminal](./docs/readme/gauge.png) | ![Funnel chart rendered in terminal](./docs/readme/funnel.png) |
+
+| Sankey | Tree |
+| --- | --- |
+| ![Sankey chart rendered in terminal](./docs/readme/sankey.png) | ![Tree chart rendered in terminal](./docs/readme/tree.png) |
+
+| Treemap | Sunburst |
+| --- | --- |
+| ![Treemap rendered in terminal](./docs/readme/treemap.png) | ![Sunburst chart rendered in terminal](./docs/readme/sunburst.png) |
+
+| Graph | Parallel |
+| --- | --- |
+| ![Graph chart rendered in terminal](./docs/readme/graph.png) | ![Parallel chart rendered in terminal](./docs/readme/parallel.png) |
+
+| Theme River | Legend Layout |
+| --- | --- |
+| ![Theme river chart rendered in terminal](./docs/readme/theme-river.png) | ![Legend layout rendered in terminal](./docs/readme/legend.png) |
+
 ## Usage
 
 ```js

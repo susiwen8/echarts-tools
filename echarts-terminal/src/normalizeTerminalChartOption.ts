@@ -52,6 +52,65 @@ function formatSeriesValue(value: unknown): string {
     return formatScalar(value);
 }
 
+function getSeriesLegendMarkerStyle(series: unknown) {
+    if (!isPlainObject(series)) {
+        return null;
+    }
+    const itemStyle = isPlainObject(series.itemStyle) ? series.itemStyle : {};
+    const lineStyle = isPlainObject(series.lineStyle) ? series.lineStyle : {};
+    const color = itemStyle.color ?? lineStyle.color;
+    if (color == null) {
+        return null;
+    }
+    return {
+        color,
+        opacity: 1
+    };
+}
+
+function normalizeLegendData(legendData: unknown[], series: unknown) {
+    const stylesBySeriesName = new Map<string, UnknownRecord>();
+    const seriesList = Array.isArray(series) ? series : (series == null ? [] : [series]);
+
+    for (const entry of seriesList) {
+        if (!isPlainObject(entry) || typeof entry.name !== 'string' || !entry.name) {
+            continue;
+        }
+        const markerStyle = getSeriesLegendMarkerStyle(entry);
+        if (markerStyle) {
+            stylesBySeriesName.set(entry.name, markerStyle);
+        }
+    }
+
+    return legendData.map(item => {
+        const name = typeof item === 'string'
+            ? item
+            : (isPlainObject(item) && typeof item.name === 'string' ? item.name : null);
+        if (!name) {
+            return item;
+        }
+        const markerStyle = stylesBySeriesName.get(name);
+        if (!markerStyle) {
+            return item;
+        }
+        if (typeof item === 'string') {
+            return {
+                name,
+                itemStyle: markerStyle
+            };
+        }
+        const itemRecord = item as UnknownRecord;
+        const itemStyle = isPlainObject(itemRecord.itemStyle) ? itemRecord.itemStyle : {};
+        return {
+            ...itemRecord,
+            itemStyle: {
+                ...itemStyle,
+                ...markerStyle
+            }
+        };
+    });
+}
+
 /* c8 ignore start */
 function buildDefaultFormatter(seriesType: unknown) {
     return function terminalLabelFormatter(params: { name?: unknown, value?: unknown }) {
@@ -114,6 +173,13 @@ export function normalizeTerminalChartOption(option: UnknownRecord) {
     /* c8 ignore next */
     else if (next.series) {
         next.series = normalizeSeries(next.series);
+    }
+
+    if (isPlainObject(next.legend) && Array.isArray(next.legend.data)) {
+        next.legend = {
+            ...next.legend,
+            data: normalizeLegendData(next.legend.data, next.series)
+        };
     }
     return next;
 }
