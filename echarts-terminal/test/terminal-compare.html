@@ -526,7 +526,7 @@
         ];
 
         sections.innerHTML = chartConfigs.map(config => `
-            <section class="compare-block">
+            <section class="compare-block" data-visual-id="${config.id}">
                 <h2>${config.title}</h2>
                 <p class="caption">${config.caption}</p>
                 <div class="grid">
@@ -535,7 +535,7 @@
                         <p>${config.browserDescription}</p>
                         <div id="browser-${config.id}-chart"></div>
                     </section>
-                    <section class="panel">
+                    <section class="panel" data-visual-panel="terminal">
                         <h2>Terminal Renderer</h2>
                         <p>${config.terminalDescription}</p>
                         <div class="terminal-shell">

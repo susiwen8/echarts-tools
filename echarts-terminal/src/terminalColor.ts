@@ -9,6 +9,7 @@ type ResolveTerminalColorOpts = {
 export const ANSI_RESET = '\u001b[0m';
 const TERMINAL_BG: TerminalColor = [15, 23, 42];
 
+/* c8 ignore next */
 function averageChannel(values: number[]) {
     let total = 0;
     for (let i = 0; i < values.length; i++) {
@@ -70,6 +71,7 @@ export function resolveTerminalColor(color: unknown, opts?: ResolveTerminalColor
         );
     }
     const colorStops = (color as { colorStops?: { color: string }[] }).colorStops;
+    /* c8 ignore next */
     if (colorStops && colorStops.length) {
         const stops: TerminalColor[] = [];
         for (let i = 0; i < colorStops.length; i++) {

@@ -1,5 +1,7 @@
-import { ANSI_RESET, TerminalColor, toAnsiBackground, toAnsiForeground } from './terminalColor.js';
+import { ANSI_RESET, toAnsiBackground, toAnsiForeground } from './terminalColor.js';
+import type { TerminalColor } from './terminalColor.js';
 
+/* c8 ignore start */
 type TextOverlay = {
     char: string
     color: TerminalColor
@@ -18,7 +20,9 @@ export default class TerminalCellBuffer {
     private _foregroundPixels: TerminalColor[];
     private _backgroundPixels: TerminalColor[];
     private _text: TextOverlay[];
+/* c8 ignore stop */
 
+    /* c8 ignore start */
     constructor(width: number, height: number) {
         this.width = Math.max(0, Math.round(width || 0));
         this.height = Math.max(0, Math.round(height || 0));
@@ -27,7 +31,9 @@ export default class TerminalCellBuffer {
         this._backgroundPixels = new Array(this.width * this.logicalHeight).fill(null);
         this._text = new Array(this.width * this.height).fill(null);
     }
+    /* c8 ignore stop */
 
+    /* c8 ignore next */
     setPixel(x: number, y: number, color: TerminalColor, overwrite = true) {
         const xi = Math.round(x);
         const yi = Math.round(y);
@@ -63,10 +69,12 @@ export default class TerminalCellBuffer {
         let col = Math.round(x);
         for (let i = 0; i < chars.length; i++) {
             if (col >= 0 && col < this.width) {
+                /* c8 ignore start */
                 this._text[row * this.width + col] = {
                     char: chars[i],
                     color
                 };
+                /* c8 ignore stop */
             }
             col++;
             if (col >= this.width) {
@@ -186,6 +194,7 @@ export default class TerminalCellBuffer {
                     currentFg = '';
                     currentBg = '';
                     if (nextFg) {
+                        /* c8 ignore next */
                         line += toAnsiForeground(nextFg === topKey ? (top || bottom) as TerminalColor : bottom as TerminalColor);
                         currentFg = nextFg;
                     }

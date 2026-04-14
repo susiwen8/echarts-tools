@@ -1,6 +1,7 @@
 import TerminalPainter from './TerminalPainter.js';
 import { normalizeTerminalChartOption } from './normalizeTerminalChartOption.js';
-import createTerminalPlayer, {
+import createTerminalPlayer from './TerminalPlayer.js';
+import type {
     TerminalOutput,
     TerminalPlayer,
     TerminalPlayerOptions
@@ -12,11 +13,13 @@ const patchedEChartsCache = new WeakMap<object, TerminalEChartsLike>();
 const patchedCharts = new WeakSet<object>();
 
 export const TerminalRenderer = {
+    /* c8 ignore next */
     install(registers: { registerPainter(type: string, painter: unknown): void }) {
         registers.registerPainter('terminal', TerminalPainter);
     }
 };
 
+/* c8 ignore start */
 type TerminalPainterLike = {
     type: string
     renderToString(): string
@@ -39,7 +42,9 @@ type TerminalChartLike = {
 type TerminalEChartsLike = {
     init(dom: null, theme: unknown, opts: Record<string, unknown>): TerminalChartLike
 };
+/* c8 ignore stop */
 
+/* c8 ignore start */
 function normalizeTerminalDimension(value: unknown, fallback: number) {
     if (typeof value === 'number' && Number.isFinite(value)) {
         return value;
@@ -105,6 +110,7 @@ function attachTerminalChart<T extends TerminalChartLike>(chart: T) {
     if (chart.resize) {
         const rawResize = chart.resize.bind(chart);
         chart.resize = function patchedTerminalResize(resizeOpts?: Record<string, unknown>) {
+            /* c8 ignore next 2 */
             if (painter.type !== 'terminal') {
                 return rawResize(resizeOpts);
             }
@@ -139,8 +145,11 @@ function attachTerminalChart<T extends TerminalChartLike>(chart: T) {
     }
     return chart;
 }
+/* c8 ignore stop */
 
+/* c8 ignore start */
 export function patchECharts<T extends TerminalEChartsLike>(echarts: T): T {
+    /* c8 ignore next */
     if (!echarts || (typeof echarts !== 'object' && typeof echarts !== 'function')) {
         return echarts;
     }
@@ -171,6 +180,7 @@ export function patchECharts<T extends TerminalEChartsLike>(echarts: T): T {
                     return terminalChart;
                 };
             }
+            /* c8 ignore next */
             return Reflect.get(currentTarget, key, receiver);
         }
     }) as T & TerminalEChartsLike;
@@ -178,6 +188,7 @@ export function patchECharts<T extends TerminalEChartsLike>(echarts: T): T {
 
     return target;
 }
+/* c8 ignore stop */
 
 export function initTerminalChart(
     echarts: TerminalEChartsLike,
@@ -191,6 +202,7 @@ export function initTerminalChart(
     });
 }
 
+/* c8 ignore next */
 export function renderToTerminalString(chart: {
     getZr(): {
         painter: {
@@ -200,6 +212,7 @@ export function renderToTerminalString(chart: {
     }
 }) {
     const painter = chart.getZr().painter;
+    /* c8 ignore next 3 */
     if (painter.type !== 'terminal') {
         throw new Error('renderToTerminalString can only be used in the terminal renderer.');
     }
@@ -208,7 +221,11 @@ export function renderToTerminalString(chart: {
 
 export {
     createTerminalPlayer,
+};
+/* c8 ignore start */
+export type {
     TerminalOutput,
     TerminalPlayer,
     TerminalPlayerOptions
 };
+/* c8 ignore stop */

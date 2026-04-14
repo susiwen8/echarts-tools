@@ -1,5 +1,5 @@
 import Storage from 'zrender/lib/Storage.js';
-import { TerminalInteractionRenderState } from './TerminalInteraction.js';
+import type { TerminalInteractionRenderState } from './TerminalInteraction.js';
 export default class TerminalPainter {
     type: string;
     ssrOnly: boolean;

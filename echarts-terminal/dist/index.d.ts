@@ -1,4 +1,5 @@
-import createTerminalPlayer, { TerminalOutput, TerminalPlayer, TerminalPlayerOptions } from './TerminalPlayer.js';
+import createTerminalPlayer from './TerminalPlayer.js';
+import type { TerminalOutput, TerminalPlayer, TerminalPlayerOptions } from './TerminalPlayer.js';
 export declare const TERMINAL_LAYOUT_SCALE_X = 8;
 export declare const TERMINAL_LAYOUT_SCALE_Y = 16;
 export declare const TerminalRenderer: {
@@ -36,4 +37,5 @@ export declare function renderToTerminalString(chart: {
         };
     };
 }): string;
-export { createTerminalPlayer, TerminalOutput, TerminalPlayer, TerminalPlayerOptions };
+export { createTerminalPlayer, };
+export type { TerminalOutput, TerminalPlayer, TerminalPlayerOptions };

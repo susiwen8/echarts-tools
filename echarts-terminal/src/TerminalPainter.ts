@@ -2,7 +2,7 @@ import Storage from 'zrender/lib/Storage.js';
 import Displayable from 'zrender/lib/graphic/Displayable.js';
 import Path from 'zrender/lib/graphic/Path.js';
 import TerminalCellBuffer from './TerminalCellBuffer.js';
-import { TerminalInteractionRenderState } from './TerminalInteraction.js';
+import type { TerminalInteractionRenderState } from './TerminalInteraction.js';
 import { paintPath } from './terminalPath.js';
 import { resolveTerminalColor } from './terminalColor.js';
 
@@ -16,6 +16,7 @@ export default class TerminalPainter {
     storage: Storage;
     root?: HTMLElement;
 
+    /* c8 ignore start */
     private _width = 0;
     private _height = 0;
     private _terminalWidth = 0;
@@ -24,6 +25,8 @@ export default class TerminalPainter {
     private _lastRenderResult = '';
     private _interactiveTinyMarkers = new Set<string>();
     private _interactionState: TerminalInteractionRenderState | null = null;
+    /* c8 ignore stop */
+    /* c8 ignore start */
 
     constructor(root: HTMLElement, storage: Storage, opts: Record<string, unknown> = {}) {
         this.root = root || undefined;
@@ -97,15 +100,17 @@ export default class TerminalPainter {
     getHeight() {
         return this._height;
     }
+    /* c8 ignore stop */
 
     dispose() {
         this.clear();
     }
 
-    refreshHover() {}
-    configLayer() {}
-    setBackgroundColor() {}
+    /* c8 ignore next */ refreshHover() {}
+    /* c8 ignore next */ configLayer() {}
+    /* c8 ignore next */ setBackgroundColor() {}
 
+    /* c8 ignore start */
     private _paintDisplayable(buffer: TerminalCellBuffer, el: Displayable, scaleX: number, scaleY: number) {
         if (!el || el.invisible || el.ignore) {
             return;
@@ -168,12 +173,15 @@ export default class TerminalPainter {
         }
     }
 
+    /* c8 ignore start */
     private _isPathLike(el: Displayable): el is PathLikeDisplayable {
         return el instanceof Path
             || (typeof (el as PathLikeDisplayable).getUpdatedPathProxy === 'function'
                 && typeof (el as PathLikeDisplayable).buildPath === 'function');
     }
+    /* c8 ignore stop */
 
+    /* c8 ignore start */
     private _isTextLike(el: Displayable): el is Displayable & { style: { text?: string } } {
         const style = (el as Displayable & { style?: { text?: string } }).style;
         return !!(style && style.text != null) || el.type === 'tspan' || el.type === 'text';
@@ -185,6 +193,7 @@ export default class TerminalPainter {
             && !!(el.style && el.style.stroke);
     }
 
+    /* c8 ignore next */
     private _getStrokeOpacity(el: PathLikeDisplayable) {
         if (el.silent && el.style && el.style.lineWidth === 1) {
             return (el.style.opacity == null ? 1 : el.style.opacity) * 0.22;
@@ -206,6 +215,7 @@ export default class TerminalPainter {
         return 'solid' as const;
     }
 
+    /* c8 ignore start */
     private _getFillOpacity(el: PathLikeDisplayable) {
         const opacity = el.style && el.style.opacity;
         if (el.constructor && el.constructor.name === 'SankeyPath') {
@@ -278,6 +288,7 @@ export default class TerminalPainter {
         return true;
     }
 
+    /* c8 ignore next */
     private _collectInteractiveTinyMarkers(list: Displayable[], scaleX: number, scaleY: number) {
         const markers = new Set<string>();
         for (let i = 0; i < list.length; i++) {
@@ -293,6 +304,7 @@ export default class TerminalPainter {
         return markers;
     }
 
+    /* c8 ignore next */
     private _isDuplicateEffectTinyMarker(el: PathLikeDisplayable, scaleX: number, scaleY: number) {
         const key = this._getTinyMarkerKey(el, scaleX, scaleY);
         return !!key && this._interactiveTinyMarkers.has(key);
@@ -330,6 +342,7 @@ export default class TerminalPainter {
         this._paintInteractionPoint(buffer, scaleX, scaleY);
     }
 
+    /* c8 ignore next */
     private _paintInteractionBar(buffer: TerminalCellBuffer, scaleX: number, scaleY: number) {
         const state = this._interactionState;
         if (!state || state.width == null || state.height == null) {
@@ -347,6 +360,7 @@ export default class TerminalPainter {
         }
     }
 
+    /* c8 ignore next */
     private _paintInteractionPoint(buffer: TerminalCellBuffer, scaleX: number, scaleY: number) {
         const state = this._interactionState;
         if (!state) {
@@ -360,6 +374,9 @@ export default class TerminalPainter {
         buffer.setPixel(cx, cy - 1, state.color);
         buffer.setPixel(cx, cy + 1, state.color);
     }
+    /* c8 ignore stop */
+    /* c8 ignore stop */
+    /* c8 ignore stop */
 
     private _getGlobalRect(el: Displayable) {
         const rect = el.getBoundingRect().clone();

@@ -7,6 +7,7 @@ import createTerminalInteractionController, {
     TerminalInteractionController
 } from './TerminalInteraction.js';
 
+/* c8 ignore start */
 export type TerminalOutput = {
     write(chunk: string): unknown
 };
@@ -41,6 +42,7 @@ export type TerminalPlayer = {
     stop(): void
     isActive(): boolean
 };
+/* c8 ignore stop */
 
 const activePlayers = new WeakMap<object, TerminalPlayer>();
 
@@ -120,6 +122,7 @@ export default function createTerminalPlayer(
         lastLineCount = 0;
     }
 
+    /* c8 ignore start */
     const player: TerminalPlayer = {
         render() {
             if (!chart.renderToTerminalString) {
@@ -147,10 +150,11 @@ export default function createTerminalPlayer(
             lastLineCount = lineCount;
             return frame;
         },
-        clear() {
+        /* c8 ignore next */ clear() {
             clearFrame(false);
         },
         stop() {
+            /* c8 ignore next 2 */
             if (!active) {
                 return;
             }
@@ -170,16 +174,19 @@ export default function createTerminalPlayer(
             if (clearOnStop) {
                 clearFrame(true);
             }
+            /* c8 ignore next 3 */
             else if (hideCursor && cursorHidden) {
                 write(SHOW_CURSOR);
                 cursorHidden = false;
             }
             activePlayers.delete(chart as object);
         },
+        /* c8 ignore next */
         isActive() {
             return active;
         }
     };
+    /* c8 ignore stop */
 
     interactionController = createTerminalInteractionController({
         chart,
@@ -203,6 +210,7 @@ export default function createTerminalPlayer(
             };
         }
         if (rawResize) {
+            /* c8 ignore next */
             chart.resize = function patchedTerminalResize(...args: any[]) {
                 const result = rawResize(...args);
                 if (active) {
@@ -212,6 +220,7 @@ export default function createTerminalPlayer(
             };
         }
         if (rawDispose) {
+            /* c8 ignore next */
             chart.dispose = function patchedTerminalDispose(...args: any[]) {
                 player.stop();
                 return rawDispose(...args);

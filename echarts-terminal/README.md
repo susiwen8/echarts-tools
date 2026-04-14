@@ -103,7 +103,23 @@ npm run showcase:live
 npm run smoke:contract
 npm run smoke
 npm run smoke:live-gallery
+npm run visual:update
+npm run visual:test
 npm run showcase
 npm run showcase:interactive
 npm run showcase:live
 ```
+
+## Visual Regression
+
+The visual regression flow renders `test/terminal-compare.html` in headless Chrome,
+captures the full page plus each compare section, and writes diff artifacts when
+the rendered output changes.
+
+```bash
+npm run visual:update
+npm run visual:test
+```
+
+`visual:test` writes an HTML report to `test/visual/artifacts/latest/report.html`
+so you can immediately inspect where the visual diff happened.

@@ -1447,3 +1447,4 @@ export {
   patchECharts,
   renderToTerminalString
 };
+//# sourceMappingURL=index.js.map

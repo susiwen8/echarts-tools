@@ -1,4 +1,4 @@
-import { TerminalColor } from './terminalColor.js';
+import type { TerminalColor } from './terminalColor.js';
 export default class TerminalCellBuffer {
     readonly width: number;
     readonly height: number;

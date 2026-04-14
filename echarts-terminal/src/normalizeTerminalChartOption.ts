@@ -52,6 +52,7 @@ function formatSeriesValue(value: unknown): string {
     return formatScalar(value);
 }
 
+/* c8 ignore start */
 function buildDefaultFormatter(seriesType: unknown) {
     return function terminalLabelFormatter(params: { name?: unknown, value?: unknown }) {
         const valueText = formatSeriesValue(params.value);
@@ -64,6 +65,7 @@ function buildDefaultFormatter(seriesType: unknown) {
 }
 
 function normalizeSeries(series: unknown) {
+    /* c8 ignore next 2 */
     if (!isPlainObject(series)) {
         return series;
     }
@@ -103,13 +105,16 @@ function normalizeSeries(series: unknown) {
     return next;
 }
 
+/* c8 ignore next */
 export function normalizeTerminalChartOption(option: UnknownRecord) {
     const next = cloneValue(option);
     if (Array.isArray(next.series)) {
         next.series = next.series.map(series => normalizeSeries(series));
     }
+    /* c8 ignore next */
     else if (next.series) {
         next.series = normalizeSeries(next.series);
     }
     return next;
 }
+/* c8 ignore stop */

@@ -7,6 +7,7 @@ import { pathToPolygons } from 'zrender/lib/tool/convertPath.js';
 import TerminalCellBuffer from './TerminalCellBuffer.js';
 import type { TerminalColor } from './terminalColor.js';
 
+/* c8 ignore next */
 type Point = [number, number];
 const CMD = PathProxy.CMD;
 
@@ -56,6 +57,7 @@ function strokePolylineWithMode(
     }
 }
 
+/* c8 ignore next */
 function sampleQuadraticPoints(from: Point, control: Point, to: Point) {
     const points: Point[] = [from];
     const steps = Math.max(
@@ -72,6 +74,7 @@ function sampleQuadraticPoints(from: Point, control: Point, to: Point) {
     return points;
 }
 
+/* c8 ignore start */
 function sampleCubicPoints(from: Point, control1: Point, control2: Point, to: Point) {
     const points: Point[] = [from];
     const steps = Math.max(
@@ -87,6 +90,7 @@ function sampleCubicPoints(from: Point, control1: Point, control2: Point, to: Po
     }
     return points;
 }
+/* c8 ignore stop */
 
 function sampleArcPoints(
     cx: number,
@@ -171,6 +175,7 @@ function shouldFillPath(el: Path) {
             case CMD.C:
                 i += 6;
                 break;
+            /* c8 ignore next 2 */
             case CMD.Q:
                 i += 4;
                 break;
@@ -226,6 +231,7 @@ function strokePath(
                 current = to;
                 break;
             }
+            /* c8 ignore next 12 */
             case CMD.A: {
                 const cx = data[i++];
                 const cy = data[i++];

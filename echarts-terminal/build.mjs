@@ -11,6 +11,7 @@ const distDir = path.join(pkgDir, 'dist');
 const tslibPath = path.join(path.dirname(require.resolve('tslib')), 'tslib.es6.js');
 const tscPath = require.resolve('typescript/bin/tsc');
 const typeOnly = process.argv.includes('--types-only');
+const emitSourceMap = !!process.env.NODE_V8_COVERAGE || process.env.ECHARTS_TERMINAL_SOURCEMAP === '1';
 
 await fs.mkdir(distDir, { recursive: true });
 
@@ -36,7 +37,7 @@ if (!typeOnly) {
         build.onResolve({ filter: /^tslib$/ }, () => ({ path: tslibPath }));
       }
     }],
-    sourcemap: false
+    sourcemap: emitSourceMap
   });
 }
 

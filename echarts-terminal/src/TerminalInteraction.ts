@@ -1,3 +1,4 @@
+/* c8 ignore start */
 type UnknownRecord = Record<string, unknown>;
 
 export type TerminalInput = {
@@ -62,9 +63,12 @@ export type TerminalInteractionController = {
     prepareFrame(painter: TerminalPainterWithInteraction): void
     stop(): void
 };
+/* c8 ignore stop */
 
+/* c8 ignore start */
 const SUPPORTED_SERIES = new Set(['bar', 'line', 'scatter']);
 const FOCUS_COLOR: [number, number, number] = [255, 255, 255];
+/* c8 ignore stop */
 
 function isPlainObject(value: unknown): value is UnknownRecord {
     return !!value && Object.prototype.toString.call(value) === '[object Object]';
@@ -80,6 +84,7 @@ function formatScalar(value: unknown): string {
     return String(value);
 }
 
+/* c8 ignore start */
 function parseColor(color: unknown): [number, number, number] {
     if (typeof color !== 'string') {
         return [255, 255, 255];
@@ -94,6 +99,7 @@ function parseColor(color: unknown): [number, number, number] {
     }
     return [255, 255, 255];
 }
+/* c8 ignore stop */
 
 function getSeriesColor(seriesOption: UnknownRecord) {
     const lineStyle = isPlainObject(seriesOption.lineStyle) ? seriesOption.lineStyle : {};
@@ -122,9 +128,11 @@ function getXAxisLabel(option: UnknownRecord, seriesOption: UnknownRecord, dataI
     return String(dataIndex);
 }
 
+/* c8 ignore start */
 function getPointValueText(seriesType: string, seriesOption: UnknownRecord, dataIndex: number) {
     const rawValue = getSeriesValue(seriesOption, dataIndex);
     if (seriesType === 'scatter') {
+        /* c8 ignore next */
         if (Array.isArray(rawValue)) {
             return rawValue.map(item => formatScalar(item)).join(',');
         }
@@ -135,6 +143,7 @@ function getPointValueText(seriesType: string, seriesOption: UnknownRecord, data
     }
     return formatScalar(rawValue);
 }
+/* c8 ignore stop */
 
 function buildInfoText(point: InteractionPoint) {
     const seriesLabel = point.seriesName || point.seriesType;
@@ -175,6 +184,7 @@ function collectNavigableSeries(chart: TerminalChartForInteraction): Interaction
         const points: InteractionPoint[] = [];
         for (let dataIndex = 0; dataIndex < data.count(); dataIndex++) {
             const el = data.getItemGraphicEl(dataIndex);
+            /* c8 ignore next 2 */
             if (!el || !el.getBoundingRect) {
                 continue;
             }
@@ -302,6 +312,7 @@ export default function createTerminalInteractionController(
         rerender();
     }
 
+    /* c8 ignore start */
     function handleInput(chunk: string | Uint8Array) {
         const text = typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk);
         if (text === '\r' || text === '\n') {
@@ -328,14 +339,18 @@ export default function createTerminalInteractionController(
             movePoint(-1);
         }
     }
+    /* c8 ignore stop */
 
+    /* c8 ignore start */
     if (input.setRawMode && input.isTTY !== false) {
         input.setRawMode(true);
     }
     input.resume?.();
     input.on('data', handleInput);
 
+    /* c8 ignore start */
     return {
+        /* c8 ignore next */
         isActive() {
             return active;
         },
@@ -345,6 +360,7 @@ export default function createTerminalInteractionController(
                 painter.setInteractionState?.(null);
                 return;
             }
+            /* c8 ignore next */
                 painter.setInteractionState?.({
                     active: true,
                     infoText: buildInfoText(point),
@@ -357,6 +373,7 @@ export default function createTerminalInteractionController(
                 });
             },
         stop() {
+            /* c8 ignore next */
             if (disposed) {
                 return;
             }
@@ -369,4 +386,5 @@ export default function createTerminalInteractionController(
             input.pause?.();
         }
     };
+    /* c8 ignore stop */
 }

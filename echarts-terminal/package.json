@@ -21,13 +21,16 @@
   "scripts": {
     "build:types": "node build.mjs --types-only",
     "build": "node build.mjs",
-    "smoke:contract": "npm run build && node test/node/terminal-plugin-contract.mjs && node test/node/terminal-data-label-contract.mjs && node test/node/terminal-effect-scatter-contract.mjs && node test/node/terminal-interaction-contract.mjs && node test/node/terminal-compare-contract.mjs && node test/node/terminal-showcase-contract.mjs",
+    "coverage:src": "node ./node_modules/c8/bin/c8.js --exclude build.mjs --all --src src --reporter=text npm run smoke",
+    "smoke:contract": "npm run build && node --loader ./test/node/ts-loader.mjs test/node/src-unit-contract.mjs && node test/node/terminal-plugin-contract.mjs && node test/node/terminal-data-label-contract.mjs && node test/node/terminal-effect-scatter-contract.mjs && node test/node/terminal-interaction-contract.mjs && node test/node/terminal-compare-contract.mjs && node test/node/terminal-showcase-contract.mjs",
     "smoke": "npm run smoke:contract && node test/node/terminal-plugin-smoke.mjs",
     "smoke:live": "npm run smoke:contract && node test/node/terminal-plugin-live.mjs",
     "smoke:live-gallery": "npm run smoke:contract && node test/node/terminal-plugin-live-gallery.mjs",
     "smoke:bun": "npm run smoke:contract && sh -c '\"${BUN_BIN:-bun}\" run test/node/terminal-plugin-smoke.mjs'",
     "smoke:deno": "npm run build && sh -c '\"${DENO_BIN:-deno}\" run -A --node-modules-dir=auto --import-map test/deno/import_map.json test/deno/terminal-plugin-smoke.mjs'",
     "smoke:frame": "npm run build && node test/node/terminal.mjs",
+    "visual:update": "npm run build && node test/visual/terminal-compare-visual.mjs update",
+    "visual:test": "npm run build && node test/visual/terminal-compare-visual.mjs test",
     "showcase": "npm run build && node test/node/terminal-showcase.mjs",
     "showcase:interactive": "npm run build && node test/node/terminal-interaction-live.mjs",
     "showcase:live": "npm run build && node test/node/terminal-live.mjs"
@@ -36,8 +39,12 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "c8": "^11.0.0",
     "echarts": "^6.0.0",
     "esbuild": "^0.8.39",
+    "pixelmatch": "^7.1.0",
+    "playwright-core": "^1.59.1",
+    "pngjs": "^7.0.0",
     "typescript": "4.4.3",
     "zrender": "^6.0.0"
   },
