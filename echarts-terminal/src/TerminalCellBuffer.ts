@@ -171,8 +171,8 @@ export default class TerminalCellBuffer {
 
                 if (top && bottom) {
                     if (topKey === bottomKey) {
-                        glyph = '█';
-                        nextFg = topKey;
+                        glyph = ' ';
+                        nextBg = topKey;
                     }
                     else {
                         glyph = '▀';

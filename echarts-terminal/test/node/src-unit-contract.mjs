@@ -46,6 +46,15 @@ function makePainter() {
     buffer.drawText(0, 0, 'B', [255, 255, 255]);
     const output = buffer.toString();
     assert.ok(output.includes('B'));
+
+    const fullCellBuffer = new TerminalCellBuffer(1, 1);
+    fullCellBuffer.setPixel(0, 0, [1, 2, 3]);
+    fullCellBuffer.setPixel(0, 1, [1, 2, 3]);
+    assert.equal(
+        fullCellBuffer.toString(),
+        `${ANSI_RESET}${toAnsiBackground([1, 2, 3])} ${ANSI_RESET}`,
+        'fully filled cells should use background-colored spaces instead of block glyphs'
+    );
 }
 
 // terminalColor branches

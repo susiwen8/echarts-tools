@@ -8,7 +8,7 @@ For local Deno smoke runs against the unpublished repo build, use an import map 
 
 ## Preview
 
-These are real terminal-rendered frames captured from the repo's visual baseline suite, not mockups. The gallery below covers all currently supported showcase/baseline examples:
+These are real terminal-rendered frames exported from the repo's terminal snapshot suite, not browser chart screenshots. The gallery below covers all currently supported showcase/baseline examples:
 
 | Bar | Line |
 | --- | --- |
@@ -148,6 +148,9 @@ npm run smoke:contract
 npm run smoke
 npm run smoke:live-gallery
 npm run visual:update
+npm run visual:update:tty
+npm run visual:update:iterm2
+npm run visual:compare:real
 npm run visual:test
 npm run showcase
 npm run showcase:interactive
@@ -157,8 +160,8 @@ npm run showcase:live
 ## Visual Regression
 
 The visual regression flow renders `test/terminal-compare.html` in headless Chrome,
-captures the full page plus each compare section, and writes diff artifacts when
-the rendered output changes.
+exports each terminal frame canvas directly to PNG, syncs `docs/readme/*.png` on
+update, and writes diff artifacts when the rendered output changes.
 
 ```bash
 npm run visual:update
@@ -167,3 +170,41 @@ npm run visual:test
 
 `visual:test` writes an HTML report to `test/visual/artifacts/latest/report.html`
 so you can immediately inspect where the visual diff happened.
+
+## Terminal.app Capture
+
+For a real macOS terminal window capture, run:
+
+```bash
+npm run visual:update:tty
+```
+
+This drives `Terminal.app` through AppleScript, captures the live window pixels
+with `screencapture`, and syncs the results into `docs/readme-terminal-app/`.
+It requires macOS plus Screen Recording / Automation permission for Terminal and
+your shell.
+
+## iTerm2 Capture
+
+For a real macOS iTerm2 window capture, run:
+
+```bash
+npm run visual:update:iterm2
+```
+
+This drives `iTerm2` through AppleScript, resizes the live session to `72x22`,
+captures the real window pixels with `screencapture`, and syncs the results into
+`docs/readme-iterm2/`. It requires macOS plus Screen Recording / Automation
+permission for iTerm2 and your shell.
+
+## Real Terminal Compare
+
+To compare the current real `Terminal.app` captures against the current real
+`iTerm2` captures, run:
+
+```bash
+npm run visual:compare:real
+```
+
+This writes a side-by-side report to
+`test/visual/artifacts/real-terminal-compare-latest/report.html`.

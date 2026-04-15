@@ -19,8 +19,7 @@
 import fs from 'fs';
 import fsp from 'fs/promises';
 import path from 'path';
-import http from 'http';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { chromium } from 'playwright-core';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
@@ -33,7 +32,8 @@ const artifactsDir = path.join(visualDir, 'artifacts', 'latest');
 const baselineArtifactsDir = path.join(artifactsDir, 'baseline');
 const actualDir = path.join(artifactsDir, 'actual');
 const diffDir = path.join(artifactsDir, 'diff');
-const comparePagePath = '/test/terminal-compare.html';
+const readmeDir = path.join(pkgDir, 'docs', 'readme');
+const comparePageUrl = pathToFileURL(path.join(pkgDir, 'test', 'terminal-compare.html')).href;
 
 function resolveChromePath() {
     const candidates = [
@@ -51,54 +51,17 @@ function resolveChromePath() {
     });
 }
 
-function getContentType(filePath) {
-    if (filePath.endsWith('.html')) return 'text/html; charset=utf-8';
-    if (filePath.endsWith('.js') || filePath.endsWith('.mjs')) return 'text/javascript; charset=utf-8';
-    if (filePath.endsWith('.json')) return 'application/json; charset=utf-8';
-    if (filePath.endsWith('.css')) return 'text/css; charset=utf-8';
-    if (filePath.endsWith('.png')) return 'image/png';
-    if (filePath.endsWith('.svg')) return 'image/svg+xml';
-    return 'application/octet-stream';
-}
-
 async function ensureCleanDir(dir) {
     await fsp.rm(dir, { recursive: true, force: true });
     await fsp.mkdir(dir, { recursive: true });
 }
 
-function startStaticServer(rootDir) {
-    const server = http.createServer(async (req, res) => {
-        const requestPath = new URL(req.url, 'http://127.0.0.1').pathname;
-        const relativePath = requestPath === '/' ? 'test/terminal-compare.html' : requestPath.slice(1);
-        const safePath = path.normalize(relativePath).replace(/^(\.\.[/\\])+/, '');
-        const filePath = path.join(rootDir, safePath);
-
-        try {
-            const stat = await fsp.stat(filePath);
-            if (stat.isDirectory()) {
-                res.statusCode = 404;
-                res.end('Not found');
-                return;
-            }
-            res.setHeader('Content-Type', getContentType(filePath));
-            res.end(await fsp.readFile(filePath));
-        }
-        catch {
-            res.statusCode = 404;
-            res.end('Not found');
-        }
-    });
-
-    return new Promise((resolve, reject) => {
-        server.on('error', reject);
-        server.listen(0, '127.0.0.1', () => {
-            const address = server.address();
-            resolve({
-                server,
-                url: `http://127.0.0.1:${address.port}${comparePagePath}`
-            });
-        });
-    });
+async function writeDataUrlToFile(dataUrl, filePath) {
+    const match = /^data:image\/png;base64,(.+)$/.exec(dataUrl);
+    if (!match) {
+        throw new Error(`Expected a PNG data URL for ${filePath}.`);
+    }
+    await fsp.writeFile(filePath, Buffer.from(match[1], 'base64'));
 }
 
 function padPng(png, width, height) {
@@ -185,18 +148,24 @@ async function captureTargets(page, targets) {
     const captures = [];
     for (const id of targets) {
         const filePath = path.join(actualDir, `${id}.png`);
-        await page.locator(`.compare-block[data-visual-id="${id}"] [data-visual-panel="terminal"]`).screenshot({ path: filePath });
+        const dataUrl = await page.locator(`#terminal-${id}-chart canvas`).evaluate(canvas => {
+            if (!(canvas instanceof HTMLCanvasElement)) {
+                throw new Error(`Missing terminal canvas for ${id}.`);
+            }
+            return canvas.toDataURL('image/png');
+        });
+        await writeDataUrlToFile(dataUrl, filePath);
         captures.push({ id, filePath });
     }
     return captures;
 }
 
-async function removeStaleBaselines(currentIds) {
-    await fsp.mkdir(baselineDir, { recursive: true });
-    const existing = await fsp.readdir(baselineDir);
+async function removeStalePngs(dir, currentIds) {
+    await fsp.mkdir(dir, { recursive: true });
+    const existing = await fsp.readdir(dir);
     await Promise.all(existing
         .filter(name => name.endsWith('.png') && !currentIds.has(path.basename(name, '.png')))
-        .map(name => fsp.rm(path.join(baselineDir, name), { force: true })));
+        .map(name => fsp.rm(path.join(dir, name), { force: true })));
 }
 
 const chromePath = resolveChromePath();
@@ -209,11 +178,12 @@ await fsp.mkdir(baselineDir, { recursive: true });
 await fsp.mkdir(baselineArtifactsDir, { recursive: true });
 await fsp.mkdir(actualDir, { recursive: true });
 await fsp.mkdir(diffDir, { recursive: true });
+await fsp.mkdir(readmeDir, { recursive: true });
 
-const { server, url } = await startStaticServer(pkgDir);
 const browser = await chromium.launch({
     executablePath: chromePath,
-    headless: true
+    headless: true,
+    args: ['--allow-file-access-from-files']
 });
 
 try {
@@ -221,8 +191,9 @@ try {
         viewport: { width: 1440, height: 2200 },
         colorScheme: 'light'
     });
-    await page.goto(url, { waitUntil: 'networkidle' });
+    await page.goto(comparePageUrl, { waitUntil: 'load' });
     await page.waitForSelector('.compare-block[data-visual-id]');
+    await page.waitForSelector('.terminal-grid canvas');
     await page.addStyleTag({
         content: '* { animation: none !important; transition: none !important; caret-color: transparent !important; }'
     });
@@ -232,18 +203,21 @@ try {
     const captures = await captureTargets(page, targets);
 
     if (mode === 'update') {
-        await removeStaleBaselines(targetIds);
+        await removeStalePngs(baselineDir, targetIds);
+        await removeStalePngs(readmeDir, targetIds);
         await Promise.all(captures.map(async ({ id, filePath }) => {
             const baselinePath = path.join(baselineDir, `${id}.png`);
             await fsp.copyFile(filePath, baselinePath);
             await fsp.copyFile(filePath, path.join(baselineArtifactsDir, `${id}.png`));
             await fsp.copyFile(filePath, path.join(diffDir, `${id}.png`));
+            await fsp.copyFile(filePath, path.join(readmeDir, `${id}.png`));
         }));
         await fsp.writeFile(
             path.join(artifactsDir, 'report.html'),
             renderReport(captures.map(({ id }) => ({ id, diffPixels: 0, missingBaseline: false })))
         );
         console.log(`Updated visual baselines for ${captures.length} targets.`);
+        console.log(`README previews synced to ${readmeDir}`);
         console.log(`Artifacts: ${path.join(artifactsDir, 'report.html')}`);
     }
     else {
@@ -286,5 +260,4 @@ try {
 }
 finally {
     await browser.close();
-    await new Promise(resolve => server.close(resolve));
 }
