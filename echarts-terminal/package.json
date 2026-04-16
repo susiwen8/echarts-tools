@@ -3,6 +3,15 @@
   "version": "0.1.0",
   "description": "Terminal renderer plugin for Apache ECharts",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/susiwen8/echarts-tools.git",
+    "directory": "echarts-terminal"
+  },
+  "homepage": "https://github.com/susiwen8/echarts-tools/tree/main/echarts-terminal#readme",
+  "bugs": {
+    "url": "https://github.com/susiwen8/echarts-tools/issues"
+  },
   "type": "module",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
