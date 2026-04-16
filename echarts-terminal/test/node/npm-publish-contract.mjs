@@ -75,8 +75,18 @@ assert.match(
 );
 assert.match(
     workflowText,
+    /github\.event\.repository\.private/,
+    'the publish workflow should branch on repository visibility before publishing'
+);
+assert.match(
+    workflowText,
+    /npm publish --access public/,
+    'the publish workflow should support plain npm publish for private repositories'
+);
+assert.match(
+    workflowText,
     /npm publish --provenance --access public/,
-    'the publish workflow should publish with provenance enabled'
+    'the publish workflow should keep provenance enabled for public repositories'
 );
 assert.match(
     workflowText,

@@ -38,7 +38,11 @@ The workflow will:
 3. run `npm run smoke:contract`
 4. run `node test/node/npm-publish-contract.mjs`
 5. run `npm pack --dry-run`
-6. publish with `npm publish --provenance --access public`
+6. publish to npm
+
+For public repositories the workflow uses `npm publish --provenance --access public`.
+
+For private repositories the workflow falls back to `npm publish --access public`, because npm currently rejects GitHub Actions provenance bundles from private source repositories.
 
 ## Why this uses `NPM_TOKEN`
 
