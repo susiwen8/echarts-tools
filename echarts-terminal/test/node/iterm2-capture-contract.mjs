@@ -48,10 +48,15 @@ assert.match(
     /screencapture/,
     'iTerm2 capture script should capture the real window pixels with screencapture'
 );
-assert.match(
+assert.doesNotMatch(
     captureScript,
     /readme-iterm2/,
-    'iTerm2 capture script should sync exported images into a dedicated README directory'
+    'iTerm2 capture script should not sync docs screenshots directly'
+);
+assert.match(
+    combinedScript,
+    /afterAll/,
+    'iTerm2 capture flow should support end-of-run cleanup for leftover windows'
 );
 
 console.log(JSON.stringify({

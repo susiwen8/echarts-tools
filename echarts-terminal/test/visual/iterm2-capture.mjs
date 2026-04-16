@@ -28,7 +28,7 @@ function toBoundsLiteral(bounds) {
 
 async function setWindowBounds(windowId, bounds, context) {
     await context.helpers.runAppleScript([
-        'tell application "iTerm2"',
+        'tell application "iTerm"',
         `set bounds of (first window whose id is ${windowId}) to ${toBoundsLiteral(bounds)}`,
         'end tell'
     ]);
@@ -36,7 +36,7 @@ async function setWindowBounds(windowId, bounds, context) {
 
 async function getWindowRect(windowId, context) {
     const output = await context.helpers.runAppleScript([
-        'tell application "iTerm2"',
+        'tell application "iTerm"',
         `set captureWindow to first window whose id is ${windowId}`,
         'set {leftEdge, topEdge, rightEdge, bottomEdge} to bounds of captureWindow',
         'return (leftEdge as text) & "," & (topEdge as text) & "," & ((rightEdge - leftEdge) as text) & "," & ((bottomEdge - topEdge) as text)',
@@ -48,7 +48,7 @@ async function getWindowRect(windowId, context) {
 
 async function getSessionSize(windowId, context) {
     const output = await context.helpers.runAppleScript([
-        'tell application "iTerm2"',
+        'tell application "iTerm"',
         `set captureWindow to first window whose id is ${windowId}`,
         'tell current session of captureWindow',
         'return (columns as text) & "," & (rows as text)',
@@ -83,7 +83,7 @@ async function settleWindowSize(windowId, context) {
 
 async function configureSession(windowId, context) {
     await context.helpers.runAppleScript([
-        'tell application "iTerm2"',
+        'tell application "iTerm"',
         `set captureWindow to first window whose id is ${windowId}`,
         'tell current session of captureWindow',
         'set transparency to 0',
@@ -97,17 +97,45 @@ async function configureSession(windowId, context) {
     ]);
 }
 
+async function listITermWindowIds(context) {
+    const output = await context.helpers.runAppleScript([
+        'tell application "iTerm"',
+        'set idsText to ""',
+        'repeat with w in windows',
+        'set idsText to idsText & (id of w as text) & "\\n"',
+        'end repeat',
+        'return idsText',
+        'end tell'
+    ]);
+    return output.split(/\s+/).map(value => Number(value.trim())).filter(Number.isFinite);
+}
+
+async function listITermPids(context) {
+    try {
+        const { stdout } = await context.helpers.runExecFile('pgrep', ['-f', '/Applications/iTerm.app/Contents/MacOS/iTerm2']);
+        return stdout.split(/\s+/).map(value => Number(value.trim())).filter(Number.isFinite);
+    }
+    catch {
+        return [];
+    }
+}
+
 await runRealTerminalCapture({
     id: 'iterm2',
     appName: 'iTerm2',
     reportTitle: 'iTerm2 captures',
     outputDir: 'iterm2',
-    readmeDir: 'readme-iterm2',
     artifactsDir: 'iterm2-latest',
     permissionHint: 'iTerm2 and your shell host',
+    async beforeAll(context) {
+        return {
+            windowIds: new Set(await listITermWindowIds(context)),
+            pids: new Set(await listITermPids(context))
+        };
+    },
     async openWindow({ context }) {
         const windowIdText = await context.helpers.runAppleScript([
-            'tell application "iTerm2"',
+            'tell application "iTerm"',
             'activate',
             'set captureWindow to create window with default profile',
             'delay 0.3',
@@ -120,7 +148,7 @@ await runRealTerminalCapture({
         await settleWindowSize(handle, context);
         await configureSession(handle, context);
         await context.helpers.runAppleScript([
-            'tell application "iTerm2"',
+            'tell application "iTerm"',
             `set captureWindow to first window whose id is ${handle}`,
             'tell current session of captureWindow',
             `write text quoted form of ${appleString(commandPath)}`,
@@ -130,7 +158,7 @@ await runRealTerminalCapture({
     },
     async focusWindow({ handle, context }) {
         await context.helpers.runAppleScript([
-            'tell application "iTerm2"',
+            'tell application "iTerm"',
             `set captureWindow to first window whose id is ${handle}`,
             'select captureWindow',
             'activate',
@@ -144,11 +172,39 @@ await runRealTerminalCapture({
     },
     async closeWindow({ handle, context }) {
         await context.helpers.runAppleScript([
-            'tell application "iTerm2"',
+            'tell application "iTerm"',
             'try',
             `close (first window whose id is ${handle})`,
             'end try',
             'end tell'
         ]);
+    },
+    async afterAll({ context, runState }) {
+        const currentIds = await listITermWindowIds(context);
+        for (const id of currentIds) {
+            if (runState?.windowIds?.has(id)) {
+                continue;
+            }
+            await context.helpers.runAppleScript([
+                'tell application "iTerm"',
+                'try',
+                `close (first window whose id is ${id})`,
+                'end try',
+                'end tell'
+            ]).catch(() => {});
+        }
+        if ((runState?.pids?.size ?? 0) === 0) {
+            await context.helpers.runAppleScript([
+                'tell application "iTerm"',
+                'quit',
+                'end tell'
+            ]).catch(() => {});
+            await context.helpers.delay(500);
+            await context.helpers.runExecFile('pkill', ['-x', 'iTerm2']).catch(() => {});
+            await context.helpers.runExecFile('pkill', ['-f', '/Applications/iTerm.app/Contents/MacOS/iTerm2']).catch(() => {});
+            await context.helpers.delay(500);
+            await context.helpers.runExecFile('pkill', ['-KILL', '-x', 'iTerm2']).catch(() => {});
+            await context.helpers.runExecFile('pkill', ['-KILL', '-f', '/Applications/iTerm.app/Contents/MacOS/iTerm2']).catch(() => {});
+        }
     }
 });

@@ -30,6 +30,11 @@ assert.equal(
     'node test/visual/real-terminal-compare.mjs',
     'package.json should expose a real-terminal comparison report command'
 );
+assert.equal(
+    packageJson.scripts['visual:update:real-baseline'],
+    'node test/visual/real-terminal-baseline-update.mjs',
+    'package.json should expose an explicit real-terminal baseline update command'
+);
 assert.match(
     compareScript,
     /terminal-app/,
@@ -42,6 +47,11 @@ assert.match(
 );
 assert.match(
     compareScript,
+    /ghostty/,
+    'real-terminal comparison should read Ghostty captures'
+);
+assert.match(
+    compareScript,
     /pixelmatch/,
     'real-terminal comparison should produce per-image diffs'
 );
@@ -49,6 +59,36 @@ assert.match(
     compareScript,
     /real-terminal-compare-latest/,
     'real-terminal comparison should write artifacts to a dedicated report directory'
+);
+assert.match(
+    compareScript,
+    /baseline-terminal-app/,
+    'real-terminal comparison should read the Terminal.app baseline directory'
+);
+assert.match(
+    compareScript,
+    /baseline-iterm2/,
+    'real-terminal comparison should read the iTerm2 baseline directory'
+);
+assert.match(
+    compareScript,
+    /baseline-ghostty/,
+    'real-terminal comparison should read the Ghostty baseline directory'
+);
+assert.match(
+    compareScript,
+    /latest aligned/,
+    'real-terminal comparison report should render the latest aligned screenshots'
+);
+assert.match(
+    compareScript,
+    /baseline aligned/,
+    'real-terminal comparison report should render the baseline aligned screenshots'
+);
+assert.match(
+    compareScript,
+    /vs baseline/,
+    'real-terminal comparison should diff latest screenshots against baseline screenshots'
 );
 
 console.log(JSON.stringify({

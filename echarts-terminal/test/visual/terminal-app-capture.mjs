@@ -38,6 +38,29 @@ async function getWindowRect(windowId, context) {
     return { left, top, width, height };
 }
 
+async function listTerminalWindowIds(context) {
+    const output = await context.helpers.runAppleScript([
+        'tell application "Terminal"',
+        'set idsText to ""',
+        'repeat with w in windows',
+        'set idsText to idsText & (id of w as text) & "\\n"',
+        'end repeat',
+        'return idsText',
+        'end tell'
+    ]);
+    return output.split(/\s+/).map(value => Number(value.trim())).filter(Number.isFinite);
+}
+
+async function listTerminalPids(context) {
+    try {
+        const { stdout } = await context.helpers.runExecFile('pgrep', ['-x', 'Terminal']);
+        return stdout.split(/\s+/).map(value => Number(value.trim())).filter(Number.isFinite);
+    }
+    catch {
+        return [];
+    }
+}
+
 async function setWindowBounds(windowId, bounds, context) {
     await context.helpers.runAppleScript([
         'tell application "Terminal"',
@@ -85,9 +108,14 @@ await runRealTerminalCapture({
     appName: 'Terminal.app',
     reportTitle: 'Terminal.app captures',
     outputDir: 'terminal-app',
-    readmeDir: 'readme-terminal-app',
     artifactsDir: 'terminal-app-latest',
     permissionHint: 'Terminal and your shell host',
+    async beforeAll(context) {
+        return {
+            windowIds: new Set(await listTerminalWindowIds(context)),
+            pids: new Set(await listTerminalPids(context))
+        };
+    },
     async openWindow({ id, commandPath, context }) {
         const windowIdText = await context.helpers.runAppleScript([
             'tell application "Terminal"',
@@ -150,5 +178,31 @@ await runRealTerminalCapture({
             'end try',
             'end tell'
         ]);
+    },
+    async afterAll({ context, runState }) {
+        const currentIds = await listTerminalWindowIds(context);
+        for (const id of currentIds) {
+            if (runState?.windowIds?.has(id)) {
+                continue;
+            }
+            await context.helpers.runAppleScript([
+                'tell application "Terminal"',
+                'try',
+                `close (first window whose id is ${id}) saving no`,
+                'end try',
+                'end tell'
+            ]).catch(() => {});
+        }
+        if ((runState?.pids?.size ?? 0) === 0) {
+            await context.helpers.runAppleScript([
+                'tell application "Terminal"',
+                'quit',
+                'end tell'
+            ]).catch(() => {});
+            await context.helpers.delay(500);
+            await context.helpers.runExecFile('pkill', ['-x', 'Terminal']).catch(() => {});
+            await context.helpers.delay(500);
+            await context.helpers.runExecFile('pkill', ['-KILL', '-x', 'Terminal']).catch(() => {});
+        }
     }
 });

@@ -48,10 +48,10 @@ assert.match(
     /screencapture/,
     'Terminal.app capture script should capture the real window pixels with screencapture'
 );
-assert.match(
+assert.doesNotMatch(
     captureScript,
     /readme-terminal-app/,
-    'Terminal.app capture script should sync exported images into a dedicated README directory'
+    'Terminal.app capture script should not sync docs screenshots directly'
 );
 assert.match(
     captureScript,
@@ -62,6 +62,11 @@ assert.match(
     captureScript,
     /number of rows of/,
     'Terminal.app capture script should read the live tab height so it can converge to a tight 72x22 capture window'
+);
+assert.match(
+    combinedScript,
+    /afterAll/,
+    'Terminal.app capture flow should support end-of-run cleanup for leftover windows'
 );
 
 console.log(JSON.stringify({

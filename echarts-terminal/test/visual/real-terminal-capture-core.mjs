@@ -55,6 +55,10 @@ export function appleString(value) {
     return `"${String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
 }
 
+function shellQuote(value) {
+    return `'${String(value).replace(/'/g, `'\\''`)}'`;
+}
+
 export async function runExecFile(pkgDir, command, args, options = {}) {
     return new Promise((resolve, reject) => {
         execFile(command, args, {
@@ -107,17 +111,13 @@ export async function removeStalePngs(dir, currentIds) {
 }
 
 export async function ensureScreenCaptureAvailable(pkgDir, permissionHint) {
-    const probePath = path.join(os.tmpdir(), 'echarts-terminal-screen-capture-probe.png');
     try {
-        await runExecFile(pkgDir, 'screencapture', ['-x', '-R', '0,0,1,1', probePath]);
+        await runExecFile(pkgDir, 'which', ['screencapture']);
     }
     catch {
         throw new Error(
             `screencapture is unavailable. Grant Screen Recording permission to ${permissionHint}, then rerun the capture script.`
         );
-    }
-    finally {
-        await fs.rm(probePath, { force: true }).catch(() => {});
     }
 }
 
@@ -139,9 +139,58 @@ ${JSON.stringify(process.execPath)} test/node/terminal-render-snapshot.mjs --id 
     await fs.writeFile(filePath, content, { mode: 0o700 });
 }
 
+async function runScreenCaptureViaTerminal(pkgDir, args) {
+    const outputPath = args[args.length - 1];
+    const shellCommand = ['screencapture', ...args].map(shellQuote).join(' ');
+    const hadTerminalBefore = await runExecFile(pkgDir, 'pgrep', ['-x', 'Terminal'])
+        .then(({ stdout }) => stdout.trim().length > 0)
+        .catch(() => false);
+    const proxyWindowId = await runAppleScript(pkgDir, [
+        'tell application "Terminal"',
+        `do script ${appleString(shellCommand)}`,
+        'delay 0.2',
+        'return id of front window as text',
+        'end tell'
+    ]);
+    try {
+        await waitForFile(outputPath);
+    }
+    finally {
+        if (proxyWindowId) {
+            await runAppleScript(pkgDir, [
+                'tell application "Terminal"',
+                'try',
+                `close (first window whose id is ${proxyWindowId}) saving no`,
+                'end try',
+                'end tell'
+            ]).catch(() => {});
+        }
+        if (!hadTerminalBefore) {
+            await runAppleScript(pkgDir, [
+                'tell application "Terminal"',
+                'quit',
+                'end tell'
+            ]).catch(() => {});
+            await delay(500);
+            await runExecFile(pkgDir, 'pkill', ['-x', 'Terminal']).catch(() => {});
+            await delay(500);
+            await runExecFile(pkgDir, 'pkill', ['-KILL', '-x', 'Terminal']).catch(() => {});
+        }
+    }
+}
+
+export async function runScreenCapture(pkgDir, args) {
+    try {
+        await runExecFile(pkgDir, 'screencapture', args);
+    }
+    catch {
+        await runScreenCaptureViaTerminal(pkgDir, args);
+    }
+}
+
 export async function captureWindowRect(pkgDir, rect, outputPath) {
     const region = `${rect.left},${rect.top},${rect.width},${rect.height}`;
-    await runExecFile(pkgDir, 'screencapture', ['-x', '-R', region, outputPath]);
+    await runScreenCapture(pkgDir, ['-x', '-R', region, outputPath]);
 }
 
 function renderReport(title, results) {
@@ -219,7 +268,7 @@ export async function runRealTerminalCapture(adapter, argv = process.argv.slice(
     const visualDir = path.dirname(fileURLToPath(import.meta.url));
     const pkgDir = path.resolve(visualDir, '..', '..');
     const outputDir = path.join(visualDir, adapter.outputDir);
-    const readmeDir = path.join(pkgDir, 'docs', adapter.readmeDir);
+    const readmeDir = adapter.readmeDir ? path.join(pkgDir, 'docs', adapter.readmeDir) : null;
     const artifactsDir = path.join(visualDir, 'artifacts', adapter.artifactsDir);
     const actualDir = path.join(artifactsDir, 'actual');
     const reportPath = path.join(artifactsDir, 'report.html');
@@ -239,13 +288,21 @@ export async function runRealTerminalCapture(adapter, argv = process.argv.slice(
     await ensureCleanDir(artifactsDir);
     await fs.mkdir(actualDir, { recursive: true });
     await fs.mkdir(outputDir, { recursive: true });
-    await fs.mkdir(readmeDir, { recursive: true });
+    if (readmeDir) {
+        await fs.mkdir(readmeDir, { recursive: true });
+    }
     await ensureScreenCaptureAvailable(pkgDir, adapter.permissionHint);
 
     const targetIds = onlyId ? [onlyId] : terminalShowcaseIds;
     const targetIdSet = new Set(targetIds);
     await removeStalePngs(outputDir, targetIdSet);
-    await removeStalePngs(readmeDir, targetIdSet);
+    if (readmeDir) {
+        const readmeTargetNames = new Set(targetIds.map(id => {
+            const mapped = adapter.readmeNameForId ? adapter.readmeNameForId(id) : `${id}.png`;
+            return path.basename(mapped, '.png');
+        }));
+        await removeStalePngs(readmeDir, readmeTargetNames);
+    }
 
     const context = {
         pkgDir,
@@ -262,24 +319,36 @@ export async function runRealTerminalCapture(adapter, argv = process.argv.slice(
             appleString,
             runExecFile: (command, args, options) => runExecFile(pkgDir, command, args, options),
             runAppleScript: lines => runAppleScript(pkgDir, lines),
-            captureWindowRect: (rect, outputPath) => captureWindowRect(pkgDir, rect, outputPath)
+            captureWindowRect: (rect, outputPath) => captureWindowRect(pkgDir, rect, outputPath),
+            runScreenCapture: args => runScreenCapture(pkgDir, args)
         }
     };
 
+    const runState = adapter.beforeAll ? await adapter.beforeAll(context) : null;
     const captures = [];
-    for (const id of targetIds) {
-        captures.push(await captureId(adapter, context, id));
+    try {
+        for (const id of targetIds) {
+            captures.push(await captureId(adapter, context, id));
+        }
+
+        await Promise.all(captures.map(async capture => {
+            await fs.copyFile(capture.filePath, path.join(outputDir, `${capture.id}.png`));
+            if (readmeDir) {
+                const readmeName = adapter.readmeNameForId ? adapter.readmeNameForId(capture.id) : `${capture.id}.png`;
+                await fs.copyFile(capture.filePath, path.join(readmeDir, readmeName));
+            }
+        }));
+
+        await fs.writeFile(reportPath, renderReport(adapter.reportTitle, captures));
+
+        console.log(`Captured ${captures.length} ${adapter.appName} snapshots.`);
+        console.log(`Snapshot directory: ${outputDir}`);
+        if (readmeDir) {
+            console.log(`README directory: ${readmeDir}`);
+        }
+        console.log(`Report: ${reportPath}`);
     }
-
-    await Promise.all(captures.map(async capture => {
-        await fs.copyFile(capture.filePath, path.join(outputDir, `${capture.id}.png`));
-        await fs.copyFile(capture.filePath, path.join(readmeDir, `${capture.id}.png`));
-    }));
-
-    await fs.writeFile(reportPath, renderReport(adapter.reportTitle, captures));
-
-    console.log(`Captured ${captures.length} ${adapter.appName} snapshots.`);
-    console.log(`Snapshot directory: ${outputDir}`);
-    console.log(`README directory: ${readmeDir}`);
-    console.log(`Report: ${reportPath}`);
+    finally {
+        await adapter.afterAll?.({ context, runState, captures }).catch(() => {});
+    }
 }

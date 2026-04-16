@@ -25,31 +25,38 @@ import pixelmatch from 'pixelmatch';
 
 const visualDir = path.dirname(fileURLToPath(import.meta.url));
 const artifactsDir = path.join(visualDir, 'artifacts', 'real-terminal-compare-latest');
-const terminalDir = path.join(visualDir, 'terminal-app');
-const iterm2Dir = path.join(visualDir, 'iterm2');
-const terminalArtifactDir = path.join(artifactsDir, 'terminal-app');
-const iterm2ArtifactDir = path.join(artifactsDir, 'iterm2');
-const terminalAlignedDir = path.join(artifactsDir, 'terminal-aligned');
-const iterm2AlignedDir = path.join(artifactsDir, 'iterm2-aligned');
-const diffDir = path.join(artifactsDir, 'diff');
-const reportPath = path.join(artifactsDir, 'report.html');
+const terminals = [
+    {
+        id: 'terminal-app',
+        label: 'Terminal.app',
+        latestDir: path.join(visualDir, 'terminal-app'),
+        baselineDir: path.join(visualDir, 'baseline-terminal-app')
+    },
+    {
+        id: 'iterm2',
+        label: 'iTerm2',
+        latestDir: path.join(visualDir, 'iterm2'),
+        baselineDir: path.join(visualDir, 'baseline-iterm2')
+    },
+    {
+        id: 'ghostty',
+        label: 'Ghostty',
+        latestDir: path.join(visualDir, 'ghostty'),
+        baselineDir: path.join(visualDir, 'baseline-ghostty')
+    }
+];
 const ACTIVE_THRESHOLD = 22;
 const BLACK_THRESHOLD = 14;
 const CHROME_SCAN_BLACK_RATIO = 0.88;
 const CONTENT_PADDING = 12;
 
+function getArtifactDir(name) {
+    return path.join(artifactsDir, name);
+}
+
 async function ensureCleanDir(dir) {
     await fsp.rm(dir, { recursive: true, force: true });
     await fsp.mkdir(dir, { recursive: true });
-}
-
-function padPng(png, width, height) {
-    if (png.width === width && png.height === height) {
-        return png;
-    }
-    const next = new PNG({ width, height });
-    PNG.bitblt(png, next, 0, 0, png.width, png.height, 0, 0);
-    return next;
 }
 
 function readPixel(png, x, y) {
@@ -186,44 +193,6 @@ function resizeContainNearest(png, width, height) {
     return next;
 }
 
-async function compareImages(terminalPath, iterm2Path, terminalAlignedPath, iterm2AlignedPath, diffPath) {
-    const terminalImage = PNG.sync.read(await fsp.readFile(terminalPath));
-    const iterm2Image = PNG.sync.read(await fsp.readFile(iterm2Path));
-    const terminalContent = extractChartContent(terminalImage);
-    const iterm2Content = extractChartContent(iterm2Image);
-    const width = Math.max(terminalContent.png.width, iterm2Content.png.width);
-    const height = Math.max(terminalContent.png.height, iterm2Content.png.height);
-    const terminalAligned = resizeContainNearest(terminalContent.png, width, height);
-    const iterm2Aligned = resizeContainNearest(iterm2Content.png, width, height);
-    await fsp.writeFile(terminalAlignedPath, PNG.sync.write(terminalAligned));
-    await fsp.writeFile(iterm2AlignedPath, PNG.sync.write(iterm2Aligned));
-    const diffImage = new PNG({ width, height });
-    const diffPixels = pixelmatch(
-        terminalAligned.data,
-        iterm2Aligned.data,
-        diffImage.data,
-        width,
-        height,
-        { threshold: 0.1 }
-    );
-    await fsp.writeFile(diffPath, PNG.sync.write(diffImage));
-    return {
-        diffPixels,
-        terminalWidth: terminalImage.width,
-        terminalHeight: terminalImage.height,
-        iterm2Width: iterm2Image.width,
-        iterm2Height: iterm2Image.height,
-        terminalCropWidth: terminalContent.png.width,
-        terminalCropHeight: terminalContent.png.height,
-        iterm2CropWidth: iterm2Content.png.width,
-        iterm2CropHeight: iterm2Content.png.height,
-        terminalTopInset: terminalContent.topInset,
-        iterm2TopInset: iterm2Content.topInset,
-        alignedWidth: width,
-        alignedHeight: height
-    };
-}
-
 async function collectIds(dir) {
     const existing = await fsp.readdir(dir).catch(() => []);
     return existing
@@ -232,29 +201,106 @@ async function collectIds(dir) {
         .sort();
 }
 
+async function comparePair(leftPng, rightPng, diffPath) {
+    const diffImage = new PNG({ width: leftPng.width, height: leftPng.height });
+    const diffPixels = pixelmatch(
+        leftPng.data,
+        rightPng.data,
+        diffImage.data,
+        leftPng.width,
+        leftPng.height,
+        { threshold: 0.1 }
+    );
+    await fsp.writeFile(diffPath, PNG.sync.write(diffImage));
+    return diffPixels;
+}
+
+function padCenterPng(png, width, height) {
+    if (png.width === width && png.height === height) {
+        return png;
+    }
+    const next = new PNG({ width, height });
+    const offsetX = Math.floor((width - png.width) / 2);
+    const offsetY = Math.floor((height - png.height) / 2);
+    PNG.bitblt(png, next, 0, 0, png.width, png.height, offsetX, offsetY);
+    return next;
+}
+
+async function comparePreparedImages(latestPath, baselinePath, latestAlignedPath, baselineAlignedPath, diffPath) {
+    const latestImage = PNG.sync.read(await fsp.readFile(latestPath));
+    const baselineImage = PNG.sync.read(await fsp.readFile(baselinePath));
+    const latestContent = extractChartContent(latestImage);
+    const baselineContent = extractChartContent(baselineImage);
+    const width = Math.max(latestContent.png.width, baselineContent.png.width);
+    const height = Math.max(latestContent.png.height, baselineContent.png.height);
+    const latestAligned = padCenterPng(resizeContainNearest(latestContent.png, width, height), width, height);
+    const baselineAligned = padCenterPng(resizeContainNearest(baselineContent.png, width, height), width, height);
+    await fsp.writeFile(latestAlignedPath, PNG.sync.write(latestAligned));
+    await fsp.writeFile(baselineAlignedPath, PNG.sync.write(baselineAligned));
+    return {
+        diffPixels: await comparePair(latestAligned, baselineAligned, diffPath),
+        latestWidth: latestImage.width,
+        latestHeight: latestImage.height,
+        baselineWidth: baselineImage.width,
+        baselineHeight: baselineImage.height,
+        latestCropWidth: latestContent.png.width,
+        latestCropHeight: latestContent.png.height,
+        baselineCropWidth: baselineContent.png.width,
+        baselineCropHeight: baselineContent.png.height,
+        latestTopInset: latestContent.topInset,
+        baselineTopInset: baselineContent.topInset,
+        alignedWidth: width,
+        alignedHeight: height
+    };
+}
+
+function renderSummary(results) {
+    const total = results.length;
+    const perTerminal = terminals.map(terminal => {
+        const comparable = results.filter(result => !result.terminals[terminal.id].missing).length;
+        const changed = results.filter(result => !result.terminals[terminal.id].missing && result.terminals[terminal.id].diffPixels > 0).length;
+        return `<li><strong>${terminal.label}</strong>: ${changed}/${comparable} targets changed</li>`;
+    }).join('');
+    return `
+        <section class="summary">
+            <p>Targets: ${total}</p>
+            <ul>${perTerminal}</ul>
+        </section>
+    `;
+}
+
 function renderReport(results) {
     const cards = results.map(result => {
-        const status = result.missingTerminal || result.missingITerm2
+        const latestFigures = terminals.map(terminal => {
+            const data = result.terminals[terminal.id];
+            return `<figure><figcaption>${terminal.label} latest aligned</figcaption>${data.missing ? '<div class="empty">missing</div>' : `<img src="./${terminal.id}-latest-aligned/${result.id}.png" />`}</figure>`;
+        }).join('');
+        const baselineFigures = terminals.map(terminal => {
+            const data = result.terminals[terminal.id];
+            return `<figure><figcaption>${terminal.label} baseline aligned</figcaption>${data.missing ? '<div class="empty">missing</div>' : `<img src="./${terminal.id}-baseline-aligned/${result.id}.png" />`}</figure>`;
+        }).join('');
+        const diffFigures = terminals.map(terminal => {
+            const data = result.terminals[terminal.id];
+            return `<figure><figcaption>${terminal.label} vs baseline</figcaption>${data.missing ? '<div class="empty">missing</div>' : `<img src="./diff-${terminal.id}/${result.id}.png" />`}</figure>`;
+        }).join('');
+        const detailLine = terminals.map(terminal => {
+            const data = result.terminals[terminal.id];
+            return data.missing
+                ? `${terminal.label}=missing`
+                : `${terminal.label}: latest=${data.latestWidth}x${data.latestHeight}->${data.latestCropWidth}x${data.latestCropHeight}, baseline=${data.baselineWidth}x${data.baselineHeight}->${data.baselineCropWidth}x${data.baselineCropHeight}, diff=${data.diffPixels}`;
+        }).join(' | ');
+        const status = Object.values(result.terminals).some(item => item.missing)
             ? 'missing'
-            : result.diffPixels > 0
+            : Object.values(result.terminals).some(item => item.diffPixels > 0)
                 ? 'changed'
                 : 'clean';
-        const details = result.missingTerminal || result.missingITerm2
-            ? `missing | terminal=${!result.missingTerminal} iTerm2=${!result.missingITerm2}`
-            : `changed=${result.diffPixels > 0} | diffPixels=${result.diffPixels} | terminal=${result.terminalWidth}x${result.terminalHeight} -> ${result.terminalCropWidth}x${result.terminalCropHeight} | iTerm2=${result.iterm2Width}x${result.iterm2Height} -> ${result.iterm2CropWidth}x${result.iterm2CropHeight} | aligned=${result.alignedWidth}x${result.alignedHeight}`;
         return `
             <section class="card ${status}">
                 <h2>${result.id}</h2>
-                <p>${details}</p>
-                <div class="raw-grid">
-                    <figure><figcaption>Terminal.app</figcaption>${result.missingTerminal ? '<div class="empty">missing</div>' : `<img src="./terminal-app/${result.id}.png" />`}</figure>
-                    <figure><figcaption>iTerm2</figcaption>${result.missingITerm2 ? '<div class="empty">missing</div>' : `<img src="./iterm2/${result.id}.png" />`}</figure>
-                </div>
-                <div class="aligned-grid">
-                    <figure><figcaption>Terminal.app aligned</figcaption>${result.missingTerminal ? '<div class="empty">n/a</div>' : `<img src="./terminal-aligned/${result.id}.png" />`}</figure>
-                    <figure><figcaption>iTerm2 aligned</figcaption>${result.missingITerm2 ? '<div class="empty">n/a</div>' : `<img src="./iterm2-aligned/${result.id}.png" />`}</figure>
-                    <figure><figcaption>Diff</figcaption>${result.missingTerminal || result.missingITerm2 ? '<div class="empty">n/a</div>' : `<img src="./diff/${result.id}.png" />`}</figure>
-                </div>
+                <p>${detailLine}</p>
+                <div class="latest-grid">${latestFigures}</div>
+                <div class="baseline-grid">${baselineFigures}</div>
+                <div class="diff-grid">${diffFigures}</div>
             </section>
         `;
     }).join('');
@@ -266,11 +312,12 @@ function renderReport(results) {
   <title>echarts-terminal real terminal compare</title>
   <style>
     body { margin: 24px; font-family: ui-sans-serif, system-ui; background: #0f172a; color: #e5e7eb; }
+    .summary { margin: 20px 0; padding: 16px; border-radius: 12px; background: #111827; border: 1px solid #334155; }
+    .summary ul { margin: 12px 0 0; padding-left: 18px; color: #cbd5e1; }
     .card { margin: 20px 0; padding: 16px; border-radius: 12px; background: #111827; border: 1px solid #334155; }
     .card.changed { border-color: #f59e0b; }
     .card.missing { border-color: #ef4444; }
-    .raw-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
-    .aligned-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .latest-grid, .baseline-grid, .diff-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
     figure { margin: 0; }
     figcaption { margin-bottom: 6px; color: #94a3b8; font-size: 12px; }
     img { width: 100%; border-radius: 8px; background: #000; border: 1px solid #475569; }
@@ -279,66 +326,68 @@ function renderReport(results) {
 </head>
 <body>
   <h1>echarts-terminal real terminal compare</h1>
-  <p>Comparing real Terminal.app captures against real iTerm2 captures after removing window chrome, extracting chart content, and aligning the cropped chart region.</p>
+  <p>Comparing each terminal's latest screenshot folder against its dedicated baseline folder.</p>
+  ${renderSummary(results)}
   ${cards}
 </body>
 </html>`;
 }
 
 await ensureCleanDir(artifactsDir);
-await fsp.mkdir(terminalArtifactDir, { recursive: true });
-await fsp.mkdir(iterm2ArtifactDir, { recursive: true });
-await fsp.mkdir(terminalAlignedDir, { recursive: true });
-await fsp.mkdir(iterm2AlignedDir, { recursive: true });
-await fsp.mkdir(diffDir, { recursive: true });
+for (const terminal of terminals) {
+    await fsp.mkdir(getArtifactDir(terminal.id), { recursive: true });
+    await fsp.mkdir(getArtifactDir(`${terminal.id}-latest-aligned`), { recursive: true });
+    await fsp.mkdir(getArtifactDir(`${terminal.id}-baseline-aligned`), { recursive: true });
+    await fsp.mkdir(getArtifactDir(`diff-${terminal.id}`), { recursive: true });
+}
 
-const ids = Array.from(new Set([
-    ...await collectIds(terminalDir),
-    ...await collectIds(iterm2Dir)
-])).sort();
+const ids = Array.from(new Set((await Promise.all([
+    ...terminals.map(terminal => collectIds(terminal.latestDir)),
+    ...terminals.map(terminal => collectIds(terminal.baselineDir))
+])).flat())).sort();
 
 const results = [];
 let hasMissing = false;
+
 for (const id of ids) {
-    const terminalPath = path.join(terminalDir, `${id}.png`);
-    const iterm2Path = path.join(iterm2Dir, `${id}.png`);
-    const terminalAlignedPath = path.join(terminalAlignedDir, `${id}.png`);
-    const iterm2AlignedPath = path.join(iterm2AlignedDir, `${id}.png`);
-    const diffPath = path.join(diffDir, `${id}.png`);
-    const terminalExists = fs.existsSync(terminalPath);
-    const iterm2Exists = fs.existsSync(iterm2Path);
-
-    if (terminalExists) {
-        await fsp.copyFile(terminalPath, path.join(terminalArtifactDir, `${id}.png`));
+    const perTerminal = {};
+    for (const terminal of terminals) {
+        const latestPath = path.join(terminal.latestDir, `${id}.png`);
+        const baselinePath = path.join(terminal.baselineDir, `${id}.png`);
+        const latestExists = fs.existsSync(latestPath);
+        const baselineExists = fs.existsSync(baselinePath);
+        if (latestExists) {
+            await fsp.copyFile(latestPath, path.join(getArtifactDir(terminal.id), `${id}.png`));
+        }
+        if (!latestExists || !baselineExists) {
+            hasMissing = true;
+            perTerminal[terminal.id] = { missing: true, diffPixels: -1 };
+            continue;
+        }
+        perTerminal[terminal.id] = {
+            missing: false,
+            ...await comparePreparedImages(
+                latestPath,
+                baselinePath,
+                path.join(getArtifactDir(`${terminal.id}-latest-aligned`), `${id}.png`),
+                path.join(getArtifactDir(`${terminal.id}-baseline-aligned`), `${id}.png`),
+                path.join(getArtifactDir(`diff-${terminal.id}`), `${id}.png`)
+            )
+        };
     }
-    if (iterm2Exists) {
-        await fsp.copyFile(iterm2Path, path.join(iterm2ArtifactDir, `${id}.png`));
-    }
-
-    if (!terminalExists || !iterm2Exists) {
-        hasMissing = true;
-        results.push({
-            id,
-            missingTerminal: !terminalExists,
-            missingITerm2: !iterm2Exists
-        });
-        continue;
-    }
-
-    results.push({
-        id,
-        missingTerminal: false,
-        missingITerm2: false,
-        ...await compareImages(terminalPath, iterm2Path, terminalAlignedPath, iterm2AlignedPath, diffPath)
-    });
+    results.push({ id, terminals: perTerminal });
 }
 
-await fsp.writeFile(reportPath, renderReport(results));
+await fsp.writeFile(path.join(artifactsDir, 'report.html'), renderReport(results));
 
-const changed = results.filter(result => !result.missingTerminal && !result.missingITerm2 && result.diffPixels > 0);
-console.log(`Compared ${results.length} real terminal targets.`);
-console.log(`Changed targets: ${changed.length}`);
-console.log(`Report: ${reportPath}`);
+const summary = terminals.map(terminal => {
+    const comparable = results.filter(result => !result.terminals[terminal.id].missing).length;
+    const changed = results.filter(result => !result.terminals[terminal.id].missing && result.terminals[terminal.id].diffPixels > 0).length;
+    return `${terminal.label}: ${changed}/${comparable}`;
+});
+console.log(`Compared ${results.length} targets.`);
+console.log(`Changed targets: ${summary.join(' | ')}`);
+console.log(`Report: ${path.join(artifactsDir, 'report.html')}`);
 
 if (hasMissing) {
     process.exitCode = 1;
