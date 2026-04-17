@@ -23,38 +23,6 @@ Report output:
 
 - `test/visual/artifacts/latest/report.html`
 
-## Browser demo (wterm + React)
-
-Install the demo app once:
-
-```bash
-cd demo/wterm-react
-npm install
-cd ../..
-```
-
-Run the local dev server:
-
-```bash
-npm run demo:wterm:dev
-```
-
-Create a production build:
-
-```bash
-npm run demo:wterm:build
-```
-
-## npm release (GitHub Actions)
-
-The package publishes from the repo-root workflow:
-
-- `../.github/workflows/publish-echarts-terminal.yml`
-
-Release instructions:
-
-- [docs/release.md](./release.md)
-
 ## Real terminal screenshots
 
 Terminal.app:

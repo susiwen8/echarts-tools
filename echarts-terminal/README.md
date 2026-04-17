@@ -116,16 +116,3 @@ npm run showcase:interactive
 For development commands, screenshot workflows, and baseline comparison:
 
 - [docs/development.md](./docs/development.md)
-
-## Browser demo
-
-To run the React + wterm browser bridge demo locally:
-
-```bash
-cd demo/wterm-react
-npm install
-cd ../..
-npm run demo:wterm:dev
-```
-
-Then open the local Vite URL and use the controls above the terminal to switch chart, theme, and terminal size. Inside the terminal, press `Enter`, arrow keys, and `Esc` to exercise the existing terminal interaction flow in the browser.
