@@ -29,7 +29,8 @@ function registerInfoCommand(program) {
         topLevelKey: item.topLevelKey,
         optionPath: item.optionPath,
         dependencies: item.dependencies || [],
-        examples: item.examples || []
+        examples: item.examples || [],
+        docs: item.docs || { option: null, tutorials: [] }
       };
 
       writeOutput(

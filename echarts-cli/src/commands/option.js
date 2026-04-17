@@ -1,27 +1,46 @@
-const { loadMetadata, resolveItem, resolveTopLevelOption } = require('../data');
 const {
-  formatInfoMarkdown,
-  formatInfoText,
+  getDescendantEntries,
+  loadMetadata,
+  loadOptionDoc,
+  resolveFineOptionQuery,
+  resolveItem,
+  resolveTopLevelOption
+} = require('../data');
+const {
+  formatDetailedOptionMarkdown,
+  formatDetailedOptionText,
   formatListMarkdown,
   formatListText,
+  formatOptionQueryMarkdown,
+  formatOptionQueryText,
   writeOutput
 } = require('../output');
 
 function registerOptionCommand(program) {
   program
-    .command('option [name]')
+    .command('option [query...]')
     .description('Inspect top-level option keys or option metadata for a specific item')
+    .option('--full-desc', 'Show fuller property descriptions in query output')
+    .option('--grep', 'Flatten recursive query results for quick filtering')
+    .option('--lang <lang>', 'Doc language: zh, en', 'zh')
+    .option('--tree', 'Show recursive query results as a tree')
     .option('--format <format>', 'Output format: text, json, markdown', 'text')
-    .action(function action(name, command) {
-      let resolvedName = name;
+    .action(function action(query, command) {
+      let resolvedQuery = query;
       let resolvedCommand = command;
 
       if (!command || typeof command !== 'object' || Array.isArray(command)) {
-        resolvedCommand = name;
-        resolvedName = null;
+        resolvedCommand = query;
+        resolvedQuery = [];
       }
 
-      if (!resolvedName) {
+      resolvedQuery = Array.isArray(resolvedQuery)
+        ? resolvedQuery.filter(Boolean)
+        : (resolvedQuery ? [resolvedQuery] : []);
+
+      const viewMode = resolvedCommand.tree ? 'tree' : (resolvedCommand.grep ? 'grep' : 'detail');
+
+      if (!resolvedQuery.length) {
         const metadata = loadMetadata();
         const payload = {
           items: metadata.optionIndex.map(option => ({
@@ -41,6 +60,57 @@ function registerOptionCommand(program) {
         return;
       }
 
+      if (resolvedQuery.length > 1 || resolvedQuery[0].includes('.')) {
+        const queryPayload = resolveFineOptionQuery(
+          resolvedQuery.length === 1 ? resolvedQuery[0] : resolvedQuery,
+          resolvedCommand.lang || 'zh'
+        );
+        if (queryPayload) {
+          let outputPayload = { ...queryPayload };
+
+          if (viewMode !== 'detail') {
+            const docState = queryPayload._docState;
+            const descendants = queryPayload.path
+              ? getDescendantEntries(docState, queryPayload.path)
+              : getDescendantEntries(docState, null);
+            const results = queryPayload.results
+              ? queryPayload.results
+              : (
+                queryPayload.path
+                  ? [{ ...queryPayload.entry, name: queryPayload.path.split('.').slice(-1)[0], hasChildren: descendants.length > 0 }]
+                    .concat(descendants.map(entry => ({
+                      ...entry,
+                      name: entry.path.split('.').slice(-1)[0],
+                      hasChildren: getDescendantEntries(docState, entry.path).length > 0
+                    })))
+                  : descendants.map(entry => ({
+                    ...entry,
+                    name: entry.path.split('.').slice(-1)[0],
+                    hasChildren: getDescendantEntries(docState, entry.path).length > 0
+                  }))
+              );
+            outputPayload = {
+              ...outputPayload,
+              viewMode,
+              results
+            };
+          }
+
+          delete outputPayload._docState;
+          outputPayload.fullDesc = Boolean(resolvedCommand.fullDesc);
+
+          writeOutput(
+            resolvedCommand.format || 'text',
+            outputPayload,
+            formatOptionQueryText,
+            formatOptionQueryMarkdown
+          );
+          return;
+        }
+      }
+
+      const resolvedName = resolvedQuery[0];
+
       const item = resolveItem(resolvedName);
       if (item) {
         const payload = {
@@ -53,14 +123,15 @@ function registerOptionCommand(program) {
           topLevelKey: item.topLevelKey,
           optionPath: item.optionPath,
           dependencies: item.dependencies || [],
-          examples: item.examples || []
+          docs: item.docs || { option: null, tutorials: [] },
+          doc: loadOptionDoc(item.docs && item.docs.option, resolvedCommand.lang || 'zh')
         };
 
         writeOutput(
           resolvedCommand.format || 'text',
           payload,
-          formatInfoText,
-          formatInfoMarkdown
+          formatDetailedOptionText,
+          formatDetailedOptionMarkdown
         );
         return;
       }
@@ -82,14 +153,15 @@ function registerOptionCommand(program) {
         topLevelKey: option.topLevelKey,
         optionPath: option.optionPath,
         dependencies: [],
-        examples: []
+        docs: option.docs || { option: null, tutorials: [] },
+        doc: loadOptionDoc(option.docs && option.docs.option, resolvedCommand.lang || 'zh')
       };
 
       writeOutput(
         resolvedCommand.format || 'text',
         payload,
-        formatInfoText,
-        formatInfoMarkdown
+        formatDetailedOptionText,
+        formatDetailedOptionMarkdown
       );
     });
 }

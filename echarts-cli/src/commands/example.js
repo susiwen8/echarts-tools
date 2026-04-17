@@ -1,4 +1,4 @@
-const { findExamples } = require('../data');
+const { findExamples, loadExampleContent } = require('../data');
 const {
   formatExampleListMarkdown,
   formatExampleListText,
@@ -36,9 +36,24 @@ function registerExampleCommand(program) {
           return;
         }
 
+        const content = loadExampleContent(example);
+        if (content == null) {
+          process.stderr.write(`Example content unavailable for id: ${resolvedId}\n`);
+          process.exitCode = 1;
+          return;
+        }
+
+        const payload = {
+          id: example.id,
+          file: example.file,
+          title: example.title,
+          tokens: example.tokens,
+          content
+        };
+
         writeOutput(
           resolvedCommand.format || 'text',
-          example,
+          payload,
           formatExampleText,
           formatExampleMarkdown
         );
@@ -50,8 +65,7 @@ function registerExampleCommand(program) {
         examples: examples.map(example => ({
           id: example.id,
           file: example.file,
-          title: example.title,
-          relativePath: example.relativePath
+          title: example.title
         }))
       };
 

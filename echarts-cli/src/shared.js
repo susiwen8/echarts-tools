@@ -5,6 +5,22 @@ function packageRoot() {
   return path.resolve(__dirname, '..');
 }
 
+function buildSearchCandidates(explicit, startDir) {
+  const candidates = [];
+  let current = explicit || startDir || packageRoot();
+
+  while (current && !candidates.includes(current)) {
+    candidates.push(current);
+    const parent = path.dirname(current);
+    if (parent === current) {
+      break;
+    }
+    current = parent;
+  }
+
+  return candidates;
+}
+
 function fileExists(filePath) {
   try {
     fs.accessSync(filePath, fs.constants.R_OK);
@@ -21,17 +37,7 @@ function readFile(filePath) {
 
 function resolveRepoRoot(startDir) {
   const explicit = process.env.ECHARTS_CLI_REPO_ROOT;
-  const candidates = [];
-  let current = explicit || startDir || packageRoot();
-
-  while (current && !candidates.includes(current)) {
-    candidates.push(current);
-    const parent = path.dirname(current);
-    if (parent === current) {
-      break;
-    }
-    current = parent;
-  }
+  const candidates = buildSearchCandidates(explicit, startDir);
 
   for (const candidate of candidates) {
     const possibleRoots = [
@@ -42,6 +48,49 @@ function resolveRepoRoot(startDir) {
       if (fileExists(path.join(possibleRoot, 'src', 'export', 'charts.ts'))
         && fileExists(path.join(possibleRoot, 'test'))
       ) {
+        return possibleRoot;
+      }
+    }
+  }
+
+  return null;
+}
+
+function resolveWebsiteRoot(startDir) {
+  const explicit = process.env.ECHARTS_CLI_WEBSITE_ROOT;
+  const candidates = buildSearchCandidates(explicit, startDir);
+
+  for (const candidate of candidates) {
+    const possibleRoots = [
+      candidate,
+      path.join(candidate, 'echarts-website')
+    ];
+    for (const possibleRoot of possibleRoots) {
+      if (fileExists(path.join(possibleRoot, 'zh', 'documents', 'option.json'))
+        && fileExists(path.join(possibleRoot, 'en', 'documents', 'option.json'))
+        && fileExists(path.join(possibleRoot, 'zh', 'documents', 'tutorial-parts', 'tutorial.json'))
+        && fileExists(path.join(possibleRoot, 'en', 'documents', 'tutorial-parts', 'tutorial.json'))
+      ) {
+        return possibleRoot;
+      }
+    }
+  }
+
+  return null;
+}
+
+function resolveExamplesRoot(startDir) {
+  const explicit = process.env.ECHARTS_CLI_EXAMPLES_ROOT;
+  const candidates = buildSearchCandidates(explicit, startDir);
+
+  for (const candidate of candidates) {
+    const possibleRoots = [
+      candidate,
+      path.join(candidate, 'echarts-example'),
+      path.join(candidate, 'echarts-examples')
+    ];
+    for (const possibleRoot of possibleRoots) {
+      if (fileExists(path.join(possibleRoot, 'public', 'examples', 'ts'))) {
         return possibleRoot;
       }
     }
@@ -79,6 +128,10 @@ function humanize(value) {
     .join(' ');
 }
 
+function camelToKebab(value) {
+  return tokenize(value).join('-');
+}
+
 function uniqBy(items, keyFn) {
   const seen = new Set();
   const result = [];
@@ -112,13 +165,17 @@ function walkFiles(dirPath, matcher, state) {
 }
 
 module.exports = {
+  buildSearchCandidates,
+  camelToKebab,
   fileExists,
   humanize,
   normalizeName,
   packageRoot,
   pascalToCamel,
   readFile,
+  resolveExamplesRoot,
   resolveRepoRoot,
+  resolveWebsiteRoot,
   tokenize,
   uniqBy,
   walkFiles
