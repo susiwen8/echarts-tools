@@ -1,0 +1,18 @@
+[package]
+name = "echarts-cli"
+version = "0.1.0"
+edition = "2021"
+description = "Offline knowledge CLI for Apache ECharts users"
+license = "Apache-2.0"
+
+[[bin]]
+name = "echarts"
+path = "rust-src/main.rs"
+
+[[bin]]
+name = "echarts-build-data"
+path = "rust-src/bin/build-data.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

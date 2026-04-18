@@ -4,7 +4,6 @@ const { buildMetadata } = require('./build-metadata');
 const { renderOptionJsonDoc } = require('./doc-utils');
 const {
   normalizeName,
-  resolveExamplesRoot,
   packageRoot,
   resolveWebsiteRoot,
   resolveRepoRoot
@@ -87,20 +86,6 @@ function loadExampleContent(example) {
     if (fs.existsSync(packagedContentPath)) {
       const content = fs.readFileSync(packagedContentPath, 'utf8');
       exampleContentCache.set(packagedContentPath, content);
-      return content;
-    }
-  }
-
-  const repoRoot = resolveRepoRoot(packageRoot());
-  const examplesRoot = resolveExamplesRoot(repoRoot || packageRoot());
-  if (examplesRoot && example.relativePath) {
-    const sourcePath = path.join(examplesRoot, example.relativePath);
-    if (exampleContentCache.has(sourcePath)) {
-      return exampleContentCache.get(sourcePath);
-    }
-    if (fs.existsSync(sourcePath)) {
-      const content = fs.readFileSync(sourcePath, 'utf8');
-      exampleContentCache.set(sourcePath, content);
       return content;
     }
   }
