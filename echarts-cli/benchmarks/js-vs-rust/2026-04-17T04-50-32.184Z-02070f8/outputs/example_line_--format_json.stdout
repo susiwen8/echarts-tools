@@ -1,0 +1,265 @@
+{
+  "query": "line",
+  "examples": [
+    {
+      "id": "line-aqi",
+      "file": "line-aqi.ts",
+      "title": "北京 AQI 可视化"
+    },
+    {
+      "id": "line-draggable",
+      "file": "line-draggable.ts",
+      "title": "可拖拽点"
+    },
+    {
+      "id": "line-easing",
+      "file": "line-easing.ts",
+      "title": "缓动函数可视化"
+    },
+    {
+      "id": "line-fisheye-lens",
+      "file": "line-fisheye-lens.ts",
+      "title": "折线图鱼眼放大"
+    },
+    {
+      "id": "line-function",
+      "file": "line-function.ts",
+      "title": "函数绘图"
+    },
+    {
+      "id": "line-gradient",
+      "file": "line-gradient.ts",
+      "title": "折线图的渐变"
+    },
+    {
+      "id": "line-graphic",
+      "file": "line-graphic.ts",
+      "title": "自定义图形组件"
+    },
+    {
+      "id": "line-in-cartesian-coordinate-system",
+      "file": "line-in-cartesian-coordinate-system.ts",
+      "title": "双数值轴折线图"
+    },
+    {
+      "id": "line-log",
+      "file": "line-log.ts",
+      "title": "对数轴示例"
+    },
+    {
+      "id": "line-marker",
+      "file": "line-marker.ts",
+      "title": "未来一周气温变化"
+    },
+    {
+      "id": "line-markline",
+      "file": "line-markline.ts",
+      "title": "折线图的标记线"
+    },
+    {
+      "id": "line-pen",
+      "file": "line-pen.ts",
+      "title": "点击添加折线图拐点"
+    },
+    {
+      "id": "line-polar",
+      "file": "line-polar.ts",
+      "title": "极坐标双数值轴"
+    },
+    {
+      "id": "line-polar2",
+      "file": "line-polar2.ts",
+      "title": "极坐标双数值轴"
+    },
+    {
+      "id": "line-race",
+      "file": "line-race.ts",
+      "title": "动态排序折线图"
+    },
+    {
+      "id": "line-sections",
+      "file": "line-sections.ts",
+      "title": "一天用电量分布"
+    },
+    {
+      "id": "line-simple",
+      "file": "line-simple.ts",
+      "title": "基础折线图"
+    },
+    {
+      "id": "line-smooth",
+      "file": "line-smooth.ts",
+      "title": "基础平滑折线图"
+    },
+    {
+      "id": "line-stack-tiled",
+      "file": "line-stack-tiled.js",
+      "title": "Line Stack Tiled"
+    },
+    {
+      "id": "line-stack",
+      "file": "line-stack.ts",
+      "title": "堆叠折线图"
+    },
+    {
+      "id": "line-step",
+      "file": "line-step.ts",
+      "title": "阶梯折线图"
+    },
+    {
+      "id": "line-style",
+      "file": "line-style.ts",
+      "title": "自定义折线图样式"
+    },
+    {
+      "id": "line-tooltip-touch",
+      "file": "line-tooltip-touch.ts",
+      "title": "移动端上的 dataZoom 和 tooltip"
+    },
+    {
+      "id": "line-y-category",
+      "file": "line-y-category.ts",
+      "title": "垂直折线图（Y轴为类目轴）"
+    },
+    {
+      "id": "line3d-orthographic",
+      "file": "line3d-orthographic.js",
+      "title": "三维折线图 - 正交投影"
+    },
+    {
+      "id": "lines-airline",
+      "file": "lines-airline.ts",
+      "title": "65k+ 飞机航线"
+    },
+    {
+      "id": "lines-bmap-bus",
+      "file": "lines-bmap-bus.ts",
+      "title": "北京公交路线 - 百度地图"
+    },
+    {
+      "id": "lines-bmap-effect",
+      "file": "lines-bmap-effect.ts",
+      "title": "北京公交路线 - 线特效"
+    },
+    {
+      "id": "lines-bmap",
+      "file": "lines-bmap.ts",
+      "title": "杭州热门步行路线 - 百度地图"
+    },
+    {
+      "id": "lines-ny",
+      "file": "lines-ny.ts",
+      "title": "使用线图绘制近100万纽约街道数据"
+    },
+    {
+      "id": "lines3d-airline-on-globe",
+      "file": "lines3d-airline-on-globe.js",
+      "title": "Airline on Globe"
+    },
+    {
+      "id": "lines3d-flight-path-on-mapbox",
+      "file": "lines3d-flight-path-on-mapbox.js",
+      "title": "Flight path on Mapbox"
+    },
+    {
+      "id": "lines3d-flights-gl",
+      "file": "lines3d-flights-gl.js",
+      "title": "Flights GL"
+    },
+    {
+      "id": "lines3d-flights-on-geo3d",
+      "file": "lines3d-flights-on-geo3d.js",
+      "title": "Flights on Geo3D"
+    },
+    {
+      "id": "lines3d-flights",
+      "file": "lines3d-flights.js",
+      "title": "Flights"
+    },
+    {
+      "id": "lines3d-taxi-chengdu",
+      "file": "lines3d-taxi-chengdu.js",
+      "title": "成都市出租车运行轨迹图 - GL 版"
+    },
+    {
+      "id": "lines3d-taxi-routes-of-cape-town",
+      "file": "lines3d-taxi-routes-of-cape-town.js",
+      "title": "Taxi routes of Cape Town"
+    },
+    {
+      "id": "linesGL-ny",
+      "file": "linesGL-ny.js",
+      "title": "LinesGL - 实时交互的纽约街道可视化"
+    },
+    {
+      "id": "bar-media-timeline",
+      "file": "bar-media-timeline.js",
+      "title": "Bar Media Timeline"
+    },
+    {
+      "id": "chord-lineStyle-color",
+      "file": "chord-lineStyle-color.ts",
+      "title": "和弦图边的颜色"
+    },
+    {
+      "id": "geo-lines",
+      "file": "geo-lines.js",
+      "title": "模拟迁徙"
+    },
+    {
+      "id": "geo-svg-lines",
+      "file": "geo-svg-lines.ts",
+      "title": "GEO 路径图（SVG）"
+    },
+    {
+      "id": "matrix-sparkline",
+      "file": "matrix-sparkline.js",
+      "title": "矩阵中的微型折线图"
+    },
+    {
+      "id": "mix-line-bar",
+      "file": "mix-line-bar.ts",
+      "title": "折柱混合"
+    },
+    {
+      "id": "mix-timeline-all",
+      "file": "mix-timeline-all.js",
+      "title": "Mix Timeline All"
+    },
+    {
+      "id": "mix-timeline-finance",
+      "file": "mix-timeline-finance.js",
+      "title": "2002全国宏观经济指标"
+    },
+    {
+      "id": "pie-label-distanceToLabelLine",
+      "file": "pie-label-distanceToLabelLine.js",
+      "title": "Pie Label Distance To Label Line"
+    },
+    {
+      "id": "pie-labelLine-adjust",
+      "file": "pie-labelLine-adjust.ts",
+      "title": "饼图引导线调整"
+    },
+    {
+      "id": "scatter-life-expectancy-timeline",
+      "file": "scatter-life-expectancy-timeline.js",
+      "title": "各国人均寿命与GDP关系演变"
+    },
+    {
+      "id": "scatter-linear-regression",
+      "file": "scatter-linear-regression.ts",
+      "title": "线性回归（使用统计插件）"
+    },
+    {
+      "id": "timeline-dynamic-series",
+      "file": "timeline-dynamic-series.js",
+      "title": "Timeline Dynamic Series"
+    },
+    {
+      "id": "tree-polyline",
+      "file": "tree-polyline.ts",
+      "title": "折线树图"
+    }
+  ]
+}

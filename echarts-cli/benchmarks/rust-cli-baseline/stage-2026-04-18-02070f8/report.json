@@ -1,0 +1,70 @@
+{
+  "generatedAt": "2026-04-18T11:53:58Z",
+  "gitSha": "02070f8",
+  "status": "partial",
+  "observation": "A main-thread sample on ./target/release/echarts list --format json spent most of its time in _dyld_start, which means dynamic-loader/process startup dominates the wall-clock sample.",
+  "environment": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "node": "v22.17.0",
+    "cargo": "cargo 1.94.1 (Homebrew)",
+    "rustc": "rustc 1.94.1 (e408947bf 2026-03-25) (Homebrew)",
+    "cpuModel": "Apple M1",
+    "machineModel": "MacBookPro17,1",
+    "releaseBinary": "/Users/susiwen8/Documents/github/echarts-tools/echarts-cli/target/release/echarts"
+  },
+  "probes": [
+    {
+      "name": "echo",
+      "command": "/bin/echo hi",
+      "elapsedMs": 2.74,
+      "status": 0,
+      "stdoutBytes": 3,
+      "stderrBytes": 0
+    },
+    {
+      "name": "python3",
+      "command": "/usr/bin/python3 -c pass",
+      "elapsedMs": 48.27,
+      "status": 0,
+      "stdoutBytes": 0,
+      "stderrBytes": 0
+    },
+    {
+      "name": "node",
+      "command": "node -e process.exit(0)",
+      "elapsedMs": 6189.02,
+      "status": 0,
+      "stdoutBytes": 0,
+      "stderrBytes": 0
+    },
+    {
+      "name": "rust-list-json",
+      "command": "./target/release/echarts list --format json",
+      "elapsedMs": 5703.96,
+      "status": 0,
+      "stdoutBytes": 9328,
+      "stderrBytes": 0
+    },
+    {
+      "name": "rust-option-tree",
+      "command": "./target/release/echarts option xAxis.axisLabel --tree",
+      "elapsedMs": 6157.06,
+      "status": 0,
+      "stdoutBytes": 6993,
+      "stderrBytes": 0
+    }
+  ],
+  "fairMeasurement": {
+    "recommendation": [
+      "Keep the wall-clock CLI benchmark, but split the report into startup floor and command work.",
+      "Measure a same-runtime no-op control first, then measure the real CLI command, and compare within the same runtime/build on the same host.",
+      "If you need CLI-internal logic only, instrument from main/subcommand entry or use a profiler/tracer that separates _dyld_start and loader time from handler time."
+    ],
+    "notes": [
+      "Using /bin/echo as a universal baseline is too optimistic; it does not pay the same loader/runtime cost as node or the Rust binary.",
+      "For this environment, a fairer interpretation is that most observed wall-clock time is startup/environment cost, not subcommand logic.",
+      "The current full multi-case benchmark script was stopped because the startup floor makes exhaustive serial sampling too slow to finish in a useful time."
+    ]
+  }
+}

@@ -1,0 +1,376 @@
+{
+  "items": [
+    {
+      "name": "bar",
+      "kind": "chart",
+      "exportName": "BarChart",
+      "optionType": "BarSeriesOption"
+    },
+    {
+      "name": "boxplot",
+      "kind": "chart",
+      "exportName": "BoxplotChart",
+      "optionType": "BoxplotSeriesOption"
+    },
+    {
+      "name": "candlestick",
+      "kind": "chart",
+      "exportName": "CandlestickChart",
+      "optionType": "CandlestickSeriesOption"
+    },
+    {
+      "name": "chord",
+      "kind": "chart",
+      "exportName": "ChordChart",
+      "optionType": "ChordSeriesOption"
+    },
+    {
+      "name": "custom",
+      "kind": "chart",
+      "exportName": "CustomChart",
+      "optionType": "CustomSeriesOption"
+    },
+    {
+      "name": "effectScatter",
+      "kind": "chart",
+      "exportName": "EffectScatterChart",
+      "optionType": "EffectScatterSeriesOption"
+    },
+    {
+      "name": "funnel",
+      "kind": "chart",
+      "exportName": "FunnelChart",
+      "optionType": "FunnelSeriesOption"
+    },
+    {
+      "name": "gauge",
+      "kind": "chart",
+      "exportName": "GaugeChart",
+      "optionType": "GaugeSeriesOption"
+    },
+    {
+      "name": "graph",
+      "kind": "chart",
+      "exportName": "GraphChart",
+      "optionType": "GraphSeriesOption"
+    },
+    {
+      "name": "heatmap",
+      "kind": "chart",
+      "exportName": "HeatmapChart",
+      "optionType": "HeatmapSeriesOption"
+    },
+    {
+      "name": "line",
+      "kind": "chart",
+      "exportName": "LineChart",
+      "optionType": "LineSeriesOption"
+    },
+    {
+      "name": "lines",
+      "kind": "chart",
+      "exportName": "LinesChart",
+      "optionType": "LinesSeriesOption"
+    },
+    {
+      "name": "map",
+      "kind": "chart",
+      "exportName": "MapChart",
+      "optionType": "MapSeriesOption"
+    },
+    {
+      "name": "parallel",
+      "kind": "chart",
+      "exportName": "ParallelChart",
+      "optionType": "ParallelSeriesOption"
+    },
+    {
+      "name": "pictorialBar",
+      "kind": "chart",
+      "exportName": "PictorialBarChart",
+      "optionType": "PictorialBarSeriesOption"
+    },
+    {
+      "name": "pie",
+      "kind": "chart",
+      "exportName": "PieChart",
+      "optionType": "PieSeriesOption"
+    },
+    {
+      "name": "radar",
+      "kind": "chart",
+      "exportName": "RadarChart",
+      "optionType": "RadarSeriesOption"
+    },
+    {
+      "name": "sankey",
+      "kind": "chart",
+      "exportName": "SankeyChart",
+      "optionType": "SankeySeriesOption"
+    },
+    {
+      "name": "scatter",
+      "kind": "chart",
+      "exportName": "ScatterChart",
+      "optionType": "ScatterSeriesOption"
+    },
+    {
+      "name": "sunburst",
+      "kind": "chart",
+      "exportName": "SunburstChart",
+      "optionType": "SunburstSeriesOption"
+    },
+    {
+      "name": "themeRiver",
+      "kind": "chart",
+      "exportName": "ThemeRiverChart",
+      "optionType": "ThemeRiverSeriesOption"
+    },
+    {
+      "name": "tree",
+      "kind": "chart",
+      "exportName": "TreeChart",
+      "optionType": "TreeSeriesOption"
+    },
+    {
+      "name": "treemap",
+      "kind": "chart",
+      "exportName": "TreemapChart",
+      "optionType": "TreemapSeriesOption"
+    },
+    {
+      "name": "aria",
+      "kind": "component",
+      "exportName": "AriaComponent",
+      "optionType": "AriaComponentOption"
+    },
+    {
+      "name": "axisPointer",
+      "kind": "component",
+      "exportName": "AxisPointerComponent",
+      "optionType": "AxisPointerComponentOption | AxisPointerComponentOption[]"
+    },
+    {
+      "name": "brush",
+      "kind": "component",
+      "exportName": "BrushComponent",
+      "optionType": "BrushComponentOption | BrushComponentOption[]"
+    },
+    {
+      "name": "calendar",
+      "kind": "component",
+      "exportName": "CalendarComponent",
+      "optionType": "CalendarComponentOption | CalendarComponentOption[]"
+    },
+    {
+      "name": "dataset",
+      "kind": "component",
+      "exportName": "DatasetComponent",
+      "optionType": "DatasetComponentOption | DatasetComponentOption[]"
+    },
+    {
+      "name": "dataZoom",
+      "kind": "component",
+      "exportName": "DataZoomComponent",
+      "optionType": "DataZoomComponentOption | (DataZoomComponentOption)[]"
+    },
+    {
+      "name": "dataZoomInside",
+      "kind": "component",
+      "exportName": "DataZoomInsideComponent",
+      "optionType": null
+    },
+    {
+      "name": "dataZoomSlider",
+      "kind": "component",
+      "exportName": "DataZoomSliderComponent",
+      "optionType": null
+    },
+    {
+      "name": "geo",
+      "kind": "component",
+      "exportName": "GeoComponent",
+      "optionType": "GeoComponentOption | GeoComponentOption[]"
+    },
+    {
+      "name": "graphic",
+      "kind": "component",
+      "exportName": "GraphicComponent",
+      "optionType": "GraphicComponentOption | GraphicComponentOption[]"
+    },
+    {
+      "name": "grid",
+      "kind": "component",
+      "exportName": "GridComponent",
+      "optionType": "GridComponentOption | GridComponentOption[]"
+    },
+    {
+      "name": "gridSimple",
+      "kind": "component",
+      "exportName": "GridSimpleComponent",
+      "optionType": null
+    },
+    {
+      "name": "legend",
+      "kind": "component",
+      "exportName": "LegendComponent",
+      "optionType": "LegendComponentOption | (LegendComponentOption)[]"
+    },
+    {
+      "name": "legendPlain",
+      "kind": "component",
+      "exportName": "LegendPlainComponent",
+      "optionType": null
+    },
+    {
+      "name": "legendScroll",
+      "kind": "component",
+      "exportName": "LegendScrollComponent",
+      "optionType": null
+    },
+    {
+      "name": "markArea",
+      "kind": "component",
+      "exportName": "MarkAreaComponent",
+      "optionType": null
+    },
+    {
+      "name": "markLine",
+      "kind": "component",
+      "exportName": "MarkLineComponent",
+      "optionType": null
+    },
+    {
+      "name": "markPoint",
+      "kind": "component",
+      "exportName": "MarkPointComponent",
+      "optionType": null
+    },
+    {
+      "name": "matrix",
+      "kind": "component",
+      "exportName": "MatrixComponent",
+      "optionType": "MatrixComponentOption | MatrixComponentOption[]"
+    },
+    {
+      "name": "parallel",
+      "kind": "component",
+      "exportName": "ParallelComponent",
+      "optionType": "ParallelComponentOption | ParallelComponentOption[]"
+    },
+    {
+      "name": "polar",
+      "kind": "component",
+      "exportName": "PolarComponent",
+      "optionType": "PolarComponentOption | PolarComponentOption[]"
+    },
+    {
+      "name": "radar",
+      "kind": "component",
+      "exportName": "RadarComponent",
+      "optionType": "RadarComponentOption | RadarComponentOption[]"
+    },
+    {
+      "name": "singleAxis",
+      "kind": "component",
+      "exportName": "SingleAxisComponent",
+      "optionType": "SingleAxisComponentOption | SingleAxisComponentOption[]"
+    },
+    {
+      "name": "thumbnail",
+      "kind": "component",
+      "exportName": "ThumbnailComponent",
+      "optionType": "ThumbnailComponentOption | (ThumbnailComponentOption)[]"
+    },
+    {
+      "name": "timeline",
+      "kind": "component",
+      "exportName": "TimelineComponent",
+      "optionType": "TimelineComponentOption | TimelineSliderComponentOption"
+    },
+    {
+      "name": "title",
+      "kind": "component",
+      "exportName": "TitleComponent",
+      "optionType": "TitleComponentOption | TitleComponentOption[]"
+    },
+    {
+      "name": "toolbox",
+      "kind": "component",
+      "exportName": "ToolboxComponent",
+      "optionType": "ToolboxComponentOption | ToolboxComponentOption[]"
+    },
+    {
+      "name": "tooltip",
+      "kind": "component",
+      "exportName": "TooltipComponent",
+      "optionType": "TooltipComponentOption | TooltipComponentOption[]"
+    },
+    {
+      "name": "transform",
+      "kind": "component",
+      "exportName": "TransformComponent",
+      "optionType": null
+    },
+    {
+      "name": "visualMap",
+      "kind": "component",
+      "exportName": "VisualMapComponent",
+      "optionType": "VisualMapComponentOption | (VisualMapComponentOption)[]"
+    },
+    {
+      "name": "visualMapContinuous",
+      "kind": "component",
+      "exportName": "VisualMapContinuousComponent",
+      "optionType": null
+    },
+    {
+      "name": "visualMapPiecewise",
+      "kind": "component",
+      "exportName": "VisualMapPiecewiseComponent",
+      "optionType": null
+    },
+    {
+      "name": "axisBreak",
+      "kind": "feature",
+      "exportName": "AxisBreak",
+      "optionType": null
+    },
+    {
+      "name": "labelLayout",
+      "kind": "feature",
+      "exportName": "LabelLayout",
+      "optionType": null
+    },
+    {
+      "name": "legacyGridContainLabel",
+      "kind": "feature",
+      "exportName": "LegacyGridContainLabel",
+      "optionType": null
+    },
+    {
+      "name": "scatterJitter",
+      "kind": "feature",
+      "exportName": "ScatterJitter",
+      "optionType": null
+    },
+    {
+      "name": "universalTransition",
+      "kind": "feature",
+      "exportName": "UniversalTransition",
+      "optionType": null
+    },
+    {
+      "name": "canvas",
+      "kind": "renderer",
+      "exportName": "CanvasRenderer",
+      "optionType": null
+    },
+    {
+      "name": "svg",
+      "kind": "renderer",
+      "exportName": "SVGRenderer",
+      "optionType": null
+    }
+  ]
+}

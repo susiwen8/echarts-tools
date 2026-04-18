@@ -32,8 +32,7 @@ pub fn package_root() -> Result<PathBuf, String> {
             for candidate in candidates {
                 if candidate.join("data").join("metadata.json").exists()
                     || (candidate.join("package.json").exists()
-                        && candidate.join("scripts").join("build-data.js").exists()
-                        && candidate.join("bin").join("echarts.js").exists())
+                        && candidate.join("data").exists())
                 {
                     return Ok(candidate);
                 }

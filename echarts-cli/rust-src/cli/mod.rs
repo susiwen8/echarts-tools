@@ -116,7 +116,7 @@ mod tests {
     }
 
     #[test]
-    fn missing_option_argument_matches_commander_shape() {
+    fn missing_option_argument_matches_expected_shape() {
         assert_eq!(
             missing_option_argument("--format <format>", Some("--help")).stderr,
             "\n  error: option `--format <format>' argument missing, got `--help'\n\n"

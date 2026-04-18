@@ -1,0 +1,47 @@
+{
+  "generatedAt": "2026-04-18T12:36:00Z",
+  "baselineReport": "benchmarks/rust-cli-baseline/stage-2026-04-18-02070f8/report.json",
+  "environment": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "runner": "Codex desktop shell"
+  },
+  "cases": [
+    {
+      "name": "rust-list",
+      "command": "./target/release/echarts list --format json",
+      "baselineElapsedMs": 5703.96,
+      "samplesMs": [7465.391292, 7251.581084, 6986.767417],
+      "medianMs": 7251.581084,
+      "underOneSecond": false
+    },
+    {
+      "name": "rust-option-tree",
+      "command": "./target/release/echarts option xAxis.axisLabel --tree",
+      "baselineElapsedMs": 6157.06,
+      "samplesMs": [7133.108208, 7117.193083, 6992.795875],
+      "medianMs": 7117.193083,
+      "underOneSecond": false
+    },
+    {
+      "name": "fast-list",
+      "command": "/usr/bin/python3 bin/echarts list --format json",
+      "baselineElapsedMs": null,
+      "samplesMs": [71.213667, 88.762792, 62.017],
+      "medianMs": 71.213667,
+      "underOneSecond": true
+    },
+    {
+      "name": "fast-option-tree",
+      "command": "/usr/bin/python3 bin/echarts option xAxis.axisLabel --tree",
+      "baselineElapsedMs": null,
+      "samplesMs": [60.365792, 55.026209, 56.551041],
+      "medianMs": 56.551041,
+      "underOneSecond": true
+    }
+  ],
+  "summary": {
+    "rustMainlineEffect": "Rust-side caching, option-result indexing, and lazy rendering improve in-process work but cannot overcome the current environment's executable startup tax.",
+    "fastPocEffect": "The Python thin-entry PoC bypasses the custom executable startup path and brings the targeted commands well under one second."
+  }
+}

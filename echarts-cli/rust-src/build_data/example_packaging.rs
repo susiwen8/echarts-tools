@@ -3,6 +3,22 @@ use std::path::Path;
 
 const MAPBOX_ACCESS_TOKEN_PREFIX: &str = "pk.";
 
+fn packaged_content_path(relative_path: &str) -> String {
+    if relative_path.ends_with(".js") || relative_path.ends_with(".ts") {
+        format!("examples/{}.txt", relative_path)
+    } else {
+        format!("examples/{relative_path}")
+    }
+}
+
+fn normalize_content_path(content_path: &str) -> String {
+    if content_path.ends_with(".js") || content_path.ends_with(".ts") {
+        format!("{content_path}.txt")
+    } else {
+        content_path.to_string()
+    }
+}
+
 pub fn split_example_content(
     metadata: &mut serde_json::Value,
     out_dir: &Path,
@@ -21,8 +37,8 @@ pub fn split_example_content(
         let content_path = example
             .get("contentPath")
             .and_then(|value| value.as_str())
-            .map(ToOwned::to_owned)
-            .or_else(|| relative_path.map(|path| format!("examples/{path}")));
+            .map(normalize_content_path)
+            .or_else(|| relative_path.map(packaged_content_path));
 
         let content = if let Some(content) = example.get("content").and_then(|value| value.as_str()) {
             Some(sanitize_example_content(content))
@@ -97,7 +113,7 @@ mod tests {
     use std::fs;
     use std::time::{SystemTime, UNIX_EPOCH};
 
-    use super::split_example_content;
+    use super::{normalize_content_path, packaged_content_path, split_example_content};
 
     #[test]
     fn splits_example_content_into_files() {
@@ -125,10 +141,10 @@ mod tests {
         assert_eq!(metadata["examples"][0]["content"], serde_json::Value::Null);
         assert_eq!(
             metadata["examples"][0]["contentPath"],
-            serde_json::Value::String("examples/public/examples/ts/line-simple.ts".to_string())
+            serde_json::Value::String("examples/public/examples/ts/line-simple.ts.txt".to_string())
         );
         assert!(root
-            .join("examples/public/examples/ts/line-simple.ts")
+            .join("examples/public/examples/ts/line-simple.ts.txt")
             .exists());
 
         fs::remove_dir_all(root).unwrap();
@@ -156,11 +172,31 @@ mod tests {
         });
 
         split_example_content(&mut metadata, &root, None).unwrap();
-        const OUTPUT_PATH: &str = "examples/public/examples/ts/gl/bar3d-on-mapbox.js";
+        const OUTPUT_PATH: &str = "examples/public/examples/ts/gl/bar3d-on-mapbox.js.txt";
         let output = fs::read_to_string(root.join(OUTPUT_PATH)).unwrap();
         assert!(!output.contains("pk.abcdefghijklmnopqrstuvwxyz0123456789ABCD"));
         assert!(output.contains("<MAPBOX_ACCESS_TOKEN>"));
         fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn rewrites_js_examples_to_non_js_packaged_paths() {
+        assert_eq!(
+            packaged_content_path("public/examples/ts/geo-lines.js"),
+            "examples/public/examples/ts/geo-lines.js.txt"
+        );
+        assert_eq!(
+            packaged_content_path("public/examples/ts/line-simple.ts"),
+            "examples/public/examples/ts/line-simple.ts.txt"
+        );
+        assert_eq!(
+            normalize_content_path("examples/public/examples/ts/geo-lines.js"),
+            "examples/public/examples/ts/geo-lines.js.txt"
+        );
+        assert_eq!(
+            normalize_content_path("examples/public/examples/ts/line-simple.ts"),
+            "examples/public/examples/ts/line-simple.ts.txt"
+        );
     }
 
     #[test]
@@ -193,7 +229,7 @@ mod tests {
         let written = split_example_content(&mut metadata, &root, Some(&examples_source)).unwrap();
         assert_eq!(written, 1);
         assert!(root
-            .join("examples/public/examples/ts/line-simple.ts")
+            .join("examples/public/examples/ts/line-simple.ts.txt")
             .exists());
 
         fs::remove_dir_all(root).unwrap();
