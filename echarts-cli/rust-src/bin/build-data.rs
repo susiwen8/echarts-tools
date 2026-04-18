@@ -107,10 +107,7 @@ fn package_root() -> Result<PathBuf, String> {
 
     candidates
         .into_iter()
-        .find(|candidate| {
-            candidate.join("package.json").exists()
-                && candidate.join("scripts").join("build-data.js").exists()
-        })
+        .find(|candidate| candidate.join("package.json").exists() && candidate.join("data").exists())
         .ok_or_else(|| "Unable to locate echarts-cli package root.".to_string())
 }
 

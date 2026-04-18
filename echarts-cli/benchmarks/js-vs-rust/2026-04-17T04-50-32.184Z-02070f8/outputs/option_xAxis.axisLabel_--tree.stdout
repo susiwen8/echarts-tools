@@ -1,0 +1,151 @@
+axisLabel type=Object
+  坐标轴刻度标签的相关设置。
+  show default=true
+    是否显示刻度标签。
+  interval type=number|Function default='auto'
+    坐标轴刻度标签的显示间隔，在类目轴中有效。
+  inside default=false
+    刻度标签是否朝内，默认朝外。
+  rotate default=0
+    刻度标签旋转的角度，在类目轴的类目标签显示不下的时候可以通过旋转防止标签之间重叠。
+  margin default=8
+    刻度标签与轴线之间的距离。
+  formatter type=string|Function
+    刻度标签的内容格式器，支持字符串模板和回调函数两种形式。
+  showMinLabel type=boolean
+    是否显示最小 tick 的 label。可取值 true , false , null 。默认自动判定（即如果标签重叠，不会显示最小 tick 的 label）。
+  showMaxLabel type=boolean
+    是否显示最大 tick 的 label。可取值 true , false , null 。默认自动判定（即如果标签重叠，不会显示最大 tick 的 label）。
+  alignMinLabel type=string
+    从 v5.5.0 开始支持 最小的坐标刻度标签的对齐方式。如果设置为 null ，则和其他标签一致。参见 align 。
+  alignMaxLabel type=string
+    从 v5.5.0 开始支持 最大的坐标刻度标签的对齐方式。如果设置为 null ，则和其他标签一致。参见 align 。
+  hideOverlap type=boolean
+    从 v5.2.0 开始支持 是否隐藏重叠的标签。
+  customValues type=Array
+    从 v5.5.1 开始支持 自定义要显示的标签位置。
+  color type=Color|Function
+    刻度标签文字的颜色，默认取 axisLine.lineStyle.color 。支持回调函数，格式如下 参数是标签的文本，返回颜色值，
+  fontStyle default='normal'
+    文字字体的风格。
+  fontWeight type=string|number default='normal'
+    文字字体的粗细。
+  fontFamily default='sans-serif'
+    文字的字体系列。
+  fontSize default=12
+    文字的字体大小。
+  align type=string
+    文字水平对齐方式，默认自动。
+  verticalAlign type=string
+    文字垂直对齐方式，默认自动。
+  lineHeight type=number default=12
+    行高。
+  backgroundColor type=string|Object default='transparent'
+    文字块背景色。
+  borderColor type=Color default=#fff
+    文字块边框颜色。
+  borderWidth default=0
+    文字块边框宽度。
+  borderType type=string|number|Array default='solid'
+    文字块边框描边类型。
+  borderDashOffset default=0
+    从 v5.0.0 开始支持 用于设置虚线的偏移量，可搭配 borderType 指定 dash array 实现灵活的虚线效果。
+  borderRadius type=number|Array default=0
+    文字块的圆角。
+  padding type=number|Array default=0
+    文字块的内边距。
+  shadowColor type=Color default='transparent'
+    文字块的背景阴影颜色。
+  shadowBlur default=0
+    文字块的背景阴影长度。
+  shadowOffsetX default=0
+    文字块的背景阴影 X 偏移。
+  shadowOffsetY default=0
+    文字块的背景阴影 Y 偏移。
+  width type=number default=100
+    文本显示宽度。
+  height type=number default=50
+    文本显示高度。
+  textBorderColor type=Color
+    文字本身的描边颜色。
+  textBorderWidth type=number
+    文字本身的描边宽度。
+  textBorderType type=string|number|Array default='solid'
+    文字本身的描边类型。
+  textBorderDashOffset default=0
+    从 v5.0.0 开始支持 用于设置虚线的偏移量，可搭配 textBorderType 指定 dash array 实现灵活的虚线效果。
+  textShadowColor type=Color default='transparent'
+    文字本身的阴影颜色。
+  textShadowBlur default=0
+    文字本身的阴影长度。
+  textShadowOffsetX default=0
+    文字本身的阴影 X 偏移。
+  textShadowOffsetY default=0
+    文字本身的阴影 Y 偏移。
+  overflow default='none'
+    文字超出宽度是否截断或者换行。配置 width 时有效 - 'truncate' 截断，并在末尾显示 ellipsis 配置的文本，默认为 ...
+  ellipsis default='...'
+    在 overflow 配置为 'truncate' 的时候，可以通过该属性配置末尾显示的文本。
+  rich type=Object
+    在 rich 里面，可以自定义富文本样式。利用富文本样式，可以在标签中做出非常丰富的效果。
+    <style_name> type=Object
+      color type=Color default='#fff'
+        文字的颜色。
+      fontStyle default='normal'
+        文字字体的风格。
+      fontWeight type=string|number default='normal'
+        文字字体的粗细。
+      fontFamily default='sans-serif'
+        文字的字体系列。
+      fontSize default=12
+        文字的字体大小。
+      align type=string
+        文字水平对齐方式，默认自动。
+      verticalAlign type=string
+        文字垂直对齐方式，默认自动。
+      lineHeight type=number default=12
+        行高。
+      backgroundColor type=string|Object default='transparent'
+        文字块背景色。
+      borderColor type=Color default=#fff
+        文字块边框颜色。
+      borderWidth default=0
+        文字块边框宽度。
+      borderType type=string|number|Array default='solid'
+        文字块边框描边类型。
+      borderDashOffset default=0
+        从 v5.0.0 开始支持 用于设置虚线的偏移量，可搭配 borderType 指定 dash array 实现灵活的虚线效果。
+      borderRadius type=number|Array default=0
+        文字块的圆角。
+      padding type=number|Array default=0
+        文字块的内边距。
+      shadowColor type=Color default='transparent'
+        文字块的背景阴影颜色。
+      shadowBlur default=0
+        文字块的背景阴影长度。
+      shadowOffsetX default=0
+        文字块的背景阴影 X 偏移。
+      shadowOffsetY default=0
+        文字块的背景阴影 Y 偏移。
+      width type=number|string
+        文字块的宽度。一般不用指定，不指定则自动是文字的宽度。在想做表格项或者使用图片（参见 backgroundColor ）时，可能会使用它。
+      height type=number|string
+        文字块的高度。一般不用指定，不指定则自动是文字的高度。在使用图片（参见 backgroundColor ）时，可能会使用它。
+      textBorderColor type=Color
+        文字本身的描边颜色。
+      textBorderWidth type=number
+        文字本身的描边宽度。
+      textBorderType type=string|number|Array default='solid'
+        文字本身的描边类型。
+      textBorderDashOffset default=0
+        从 v5.0.0 开始支持 用于设置虚线的偏移量，可搭配 textBorderType 指定 dash array 实现灵活的虚线效果。
+      textShadowColor type=Color default='transparent'
+        文字本身的阴影颜色。
+      textShadowBlur default=0
+        文字本身的阴影长度。
+      textShadowOffsetX default=0
+        文字本身的阴影 X 偏移。
+      textShadowOffsetY default=0
+        文字本身的阴影 Y 偏移。
+  richInheritPlainLabel default=true
+    从 v6.0.0 开始支持 富文本样式是否继承普通文本样式。

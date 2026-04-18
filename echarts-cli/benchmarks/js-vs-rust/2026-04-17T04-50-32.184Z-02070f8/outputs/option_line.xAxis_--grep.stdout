@@ -1,0 +1,474 @@
+id	type=string
+show	default=true
+gridIndex	default=0
+alignTicks	default=false
+position	type=string	default=bottom
+offset	default=0
+type	default='category'
+name	type=string
+nameLocation	default='end'
+nameTextStyle	type=Object
+nameTextStyle.color	type=Color
+nameTextStyle.fontStyle	default='normal'
+nameTextStyle.fontWeight	type=string|number	default='normal'
+nameTextStyle.fontFamily	default='sans-serif'
+nameTextStyle.fontSize	default=12
+nameTextStyle.align	type=string
+nameTextStyle.verticalAlign	type=string
+nameTextStyle.lineHeight	type=number	default=12
+nameTextStyle.backgroundColor	type=string|Object	default='transparent'
+nameTextStyle.borderColor	type=Color	default=#fff
+nameTextStyle.borderWidth	default=0
+nameTextStyle.borderType	type=string|number|Array	default='solid'
+nameTextStyle.borderDashOffset	default=0
+nameTextStyle.borderRadius	type=number|Array	default=0
+nameTextStyle.padding	type=number|Array	default=0
+nameTextStyle.shadowColor	type=Color	default='transparent'
+nameTextStyle.shadowBlur	default=0
+nameTextStyle.shadowOffsetX	default=0
+nameTextStyle.shadowOffsetY	default=0
+nameTextStyle.width	type=number	default=100
+nameTextStyle.height	type=number	default=50
+nameTextStyle.textBorderColor	type=Color
+nameTextStyle.textBorderWidth	type=number
+nameTextStyle.textBorderType	type=string|number|Array	default='solid'
+nameTextStyle.textBorderDashOffset	default=0
+nameTextStyle.textShadowColor	type=Color	default='transparent'
+nameTextStyle.textShadowBlur	default=0
+nameTextStyle.textShadowOffsetX	default=0
+nameTextStyle.textShadowOffsetY	default=0
+nameTextStyle.overflow	default='none'
+nameTextStyle.ellipsis	default='...'
+nameTextStyle.rich	type=Object
+nameTextStyle.rich.<style_name>.color	type=Color	default='#fff'
+nameTextStyle.rich.<style_name>.fontStyle	default='normal'
+nameTextStyle.rich.<style_name>.fontWeight	type=string|number	default='normal'
+nameTextStyle.rich.<style_name>.fontFamily	default='sans-serif'
+nameTextStyle.rich.<style_name>.fontSize	default=12
+nameTextStyle.rich.<style_name>.align	type=string
+nameTextStyle.rich.<style_name>.verticalAlign	type=string
+nameTextStyle.rich.<style_name>.lineHeight	type=number	default=12
+nameTextStyle.rich.<style_name>.backgroundColor	type=string|Object	default='transparent'
+nameTextStyle.rich.<style_name>.borderColor	type=Color	default=#fff
+nameTextStyle.rich.<style_name>.borderWidth	default=0
+nameTextStyle.rich.<style_name>.borderType	type=string|number|Array	default='solid'
+nameTextStyle.rich.<style_name>.borderDashOffset	default=0
+nameTextStyle.rich.<style_name>.borderRadius	type=number|Array	default=0
+nameTextStyle.rich.<style_name>.padding	type=number|Array	default=0
+nameTextStyle.rich.<style_name>.shadowColor	type=Color	default='transparent'
+nameTextStyle.rich.<style_name>.shadowBlur	default=0
+nameTextStyle.rich.<style_name>.shadowOffsetX	default=0
+nameTextStyle.rich.<style_name>.shadowOffsetY	default=0
+nameTextStyle.rich.<style_name>.width	type=number|string
+nameTextStyle.rich.<style_name>.height	type=number|string
+nameTextStyle.rich.<style_name>.textBorderColor	type=Color
+nameTextStyle.rich.<style_name>.textBorderWidth	type=number
+nameTextStyle.rich.<style_name>.textBorderType	type=string|number|Array	default='solid'
+nameTextStyle.rich.<style_name>.textBorderDashOffset	default=0
+nameTextStyle.rich.<style_name>.textShadowColor	type=Color	default='transparent'
+nameTextStyle.rich.<style_name>.textShadowBlur	default=0
+nameTextStyle.rich.<style_name>.textShadowOffsetX	default=0
+nameTextStyle.rich.<style_name>.textShadowOffsetY	default=0
+nameTextStyle.richInheritPlainLabel	default=true
+nameGap	default=15
+nameRotate	type=number
+nameTruncate	type=Object
+nameTruncate.maxWidth	type=number
+nameTruncate.ellipsis	default='...'
+nameMoveOverlap	default=true
+inverse	default=false
+boundaryGap	type=boolean|Array
+min	type=number|string|Function
+max	type=number|string|Function
+scale	default=false
+splitNumber	default=5
+minInterval	default=0
+maxInterval	type=number
+interval	type=number
+logBase	default=10
+startValue	type=number
+silent	default=false
+triggerEvent	default=false
+jitter	default=0
+jitterOverlap	default=true
+jitterMargin	default=2
+breaks	type=Array
+breaks.start	type=string|number|Date
+breaks.end	type=string|number|Date
+breaks.gap	type=number|string
+breaks.isExpanded	default=false
+breakArea	type=*
+breakArea.show	default=true
+breakArea.itemStyle	type=*
+breakArea.itemStyle.color	type=Color	default=#fff
+breakArea.itemStyle.borderColor	type=Color	default='#b7b9be'
+breakArea.itemStyle.borderWidth	default=1
+breakArea.itemStyle.borderType	type=string|number|Array	default=[3, 3]
+breakArea.itemStyle.borderDashOffset	default=0
+breakArea.itemStyle.borderCap	default='butt'
+breakArea.itemStyle.borderJoin	default='bevel'
+breakArea.itemStyle.borderMiterLimit	default=10
+breakArea.itemStyle.shadowBlur	type=number
+breakArea.itemStyle.shadowColor	type=Color
+breakArea.itemStyle.shadowOffsetX	default=0
+breakArea.itemStyle.shadowOffsetY	default=0
+breakArea.itemStyle.opacity	default=0.6
+breakArea.zigzagAmplitude	default=4
+breakArea.zigzagMinSpan	default=4
+breakArea.zigzagMaxSpan	default=20
+breakArea.zigzagZ	default=100
+breakArea.expandOnClick	default=true
+breakLabelLayout	type=Object
+breakLabelLayout.moveOverlap	type=string|boolean	default='auto'
+axisLine	type=Object
+axisLine.show	default=true
+axisLine.onZero	default=true
+axisLine.onZeroAxisIndex	type=number
+axisLine.symbol	type=string|Array	default='none'
+axisLine.symbolSize	type=Array	default=[10, 15]
+axisLine.symbolOffset	type=Array|number	default=[0, 0]
+axisLine.lineStyle.color	type=Color	default='#333'
+axisLine.lineStyle.width	default=1
+axisLine.lineStyle.type	type=string|number|Array	default='solid'
+axisLine.lineStyle.dashOffset	default=0
+axisLine.lineStyle.cap	default='butt'
+axisLine.lineStyle.join	default='bevel'
+axisLine.lineStyle.miterLimit	default=10
+axisLine.lineStyle.shadowBlur	type=number
+axisLine.lineStyle.shadowColor	type=Color
+axisLine.lineStyle.shadowOffsetX	default=0
+axisLine.lineStyle.shadowOffsetY	default=0
+axisLine.lineStyle.opacity	default=1
+axisTick	type=Object
+axisTick.show	default=true
+axisTick.alignWithLabel	default=false
+axisTick.interval	type=number|Function	default='auto'
+axisTick.inside	default=false
+axisTick.length	default=5
+axisTick.lineStyle	type=Object
+axisTick.lineStyle.color	type=Color
+axisTick.lineStyle.width	default=1
+axisTick.lineStyle.type	type=string|number|Array	default='solid'
+axisTick.lineStyle.dashOffset	default=0
+axisTick.lineStyle.cap	default='butt'
+axisTick.lineStyle.join	default='bevel'
+axisTick.lineStyle.miterLimit	default=10
+axisTick.lineStyle.shadowBlur	type=number
+axisTick.lineStyle.shadowColor	type=Color
+axisTick.lineStyle.shadowOffsetX	default=0
+axisTick.lineStyle.shadowOffsetY	default=0
+axisTick.lineStyle.opacity	default=1
+axisTick.customValues	type=Array
+minorTick	type=Object
+minorTick.show	default=false
+minorTick.splitNumber	default=5
+minorTick.length	default=3
+minorTick.lineStyle.color	type=Color
+minorTick.lineStyle.width	default=1
+minorTick.lineStyle.type	type=string|number|Array	default='solid'
+minorTick.lineStyle.dashOffset	default=0
+minorTick.lineStyle.cap	default='butt'
+minorTick.lineStyle.join	default='bevel'
+minorTick.lineStyle.miterLimit	default=10
+minorTick.lineStyle.shadowBlur	type=number
+minorTick.lineStyle.shadowColor	type=Color
+minorTick.lineStyle.shadowOffsetX	default=0
+minorTick.lineStyle.shadowOffsetY	default=0
+minorTick.lineStyle.opacity	default=1
+axisLabel	type=Object
+axisLabel.show	default=true
+axisLabel.interval	type=number|Function	default='auto'
+axisLabel.inside	default=false
+axisLabel.rotate	default=0
+axisLabel.margin	default=8
+axisLabel.formatter	type=string|Function
+axisLabel.showMinLabel	type=boolean
+axisLabel.showMaxLabel	type=boolean
+axisLabel.alignMinLabel	type=string
+axisLabel.alignMaxLabel	type=string
+axisLabel.hideOverlap	type=boolean
+axisLabel.customValues	type=Array
+axisLabel.color	type=Color|Function
+axisLabel.fontStyle	default='normal'
+axisLabel.fontWeight	type=string|number	default='normal'
+axisLabel.fontFamily	default='sans-serif'
+axisLabel.fontSize	default=12
+axisLabel.align	type=string
+axisLabel.verticalAlign	type=string
+axisLabel.lineHeight	type=number	default=12
+axisLabel.backgroundColor	type=string|Object	default='transparent'
+axisLabel.borderColor	type=Color	default=#fff
+axisLabel.borderWidth	default=0
+axisLabel.borderType	type=string|number|Array	default='solid'
+axisLabel.borderDashOffset	default=0
+axisLabel.borderRadius	type=number|Array	default=0
+axisLabel.padding	type=number|Array	default=0
+axisLabel.shadowColor	type=Color	default='transparent'
+axisLabel.shadowBlur	default=0
+axisLabel.shadowOffsetX	default=0
+axisLabel.shadowOffsetY	default=0
+axisLabel.width	type=number	default=100
+axisLabel.height	type=number	default=50
+axisLabel.textBorderColor	type=Color
+axisLabel.textBorderWidth	type=number
+axisLabel.textBorderType	type=string|number|Array	default='solid'
+axisLabel.textBorderDashOffset	default=0
+axisLabel.textShadowColor	type=Color	default='transparent'
+axisLabel.textShadowBlur	default=0
+axisLabel.textShadowOffsetX	default=0
+axisLabel.textShadowOffsetY	default=0
+axisLabel.overflow	default='none'
+axisLabel.ellipsis	default='...'
+axisLabel.rich	type=Object
+axisLabel.rich.<style_name>.color	type=Color	default='#fff'
+axisLabel.rich.<style_name>.fontStyle	default='normal'
+axisLabel.rich.<style_name>.fontWeight	type=string|number	default='normal'
+axisLabel.rich.<style_name>.fontFamily	default='sans-serif'
+axisLabel.rich.<style_name>.fontSize	default=12
+axisLabel.rich.<style_name>.align	type=string
+axisLabel.rich.<style_name>.verticalAlign	type=string
+axisLabel.rich.<style_name>.lineHeight	type=number	default=12
+axisLabel.rich.<style_name>.backgroundColor	type=string|Object	default='transparent'
+axisLabel.rich.<style_name>.borderColor	type=Color	default=#fff
+axisLabel.rich.<style_name>.borderWidth	default=0
+axisLabel.rich.<style_name>.borderType	type=string|number|Array	default='solid'
+axisLabel.rich.<style_name>.borderDashOffset	default=0
+axisLabel.rich.<style_name>.borderRadius	type=number|Array	default=0
+axisLabel.rich.<style_name>.padding	type=number|Array	default=0
+axisLabel.rich.<style_name>.shadowColor	type=Color	default='transparent'
+axisLabel.rich.<style_name>.shadowBlur	default=0
+axisLabel.rich.<style_name>.shadowOffsetX	default=0
+axisLabel.rich.<style_name>.shadowOffsetY	default=0
+axisLabel.rich.<style_name>.width	type=number|string
+axisLabel.rich.<style_name>.height	type=number|string
+axisLabel.rich.<style_name>.textBorderColor	type=Color
+axisLabel.rich.<style_name>.textBorderWidth	type=number
+axisLabel.rich.<style_name>.textBorderType	type=string|number|Array	default='solid'
+axisLabel.rich.<style_name>.textBorderDashOffset	default=0
+axisLabel.rich.<style_name>.textShadowColor	type=Color	default='transparent'
+axisLabel.rich.<style_name>.textShadowBlur	default=0
+axisLabel.rich.<style_name>.textShadowOffsetX	default=0
+axisLabel.rich.<style_name>.textShadowOffsetY	default=0
+axisLabel.richInheritPlainLabel	default=true
+splitLine	type=Object
+splitLine.show	default=true
+splitLine.showMinLine	default=true
+splitLine.showMaxLine	default=true
+splitLine.interval	type=number|Function	default='auto'
+splitLine.lineStyle.color	type=Array|string	default=['#ccc']
+splitLine.lineStyle.width	default=1
+splitLine.lineStyle.type	type=string|number|Array	default='solid'
+splitLine.lineStyle.dashOffset	default=0
+splitLine.lineStyle.cap	default='butt'
+splitLine.lineStyle.join	default='bevel'
+splitLine.lineStyle.miterLimit	default=10
+splitLine.lineStyle.shadowBlur	type=number
+splitLine.lineStyle.shadowColor	type=Color
+splitLine.lineStyle.shadowOffsetX	default=0
+splitLine.lineStyle.shadowOffsetY	default=0
+splitLine.lineStyle.opacity	default=1
+minorSplitLine	type=Object
+minorSplitLine.show	default=false
+minorSplitLine.lineStyle.color	type=Color	default='#eee'
+minorSplitLine.lineStyle.width	default=1
+minorSplitLine.lineStyle.type	type=string|number|Array	default='solid'
+minorSplitLine.lineStyle.dashOffset	default=0
+minorSplitLine.lineStyle.cap	default='butt'
+minorSplitLine.lineStyle.join	default='bevel'
+minorSplitLine.lineStyle.miterLimit	default=10
+minorSplitLine.lineStyle.shadowBlur	type=number
+minorSplitLine.lineStyle.shadowColor	type=Color
+minorSplitLine.lineStyle.shadowOffsetX	default=0
+minorSplitLine.lineStyle.shadowOffsetY	default=0
+minorSplitLine.lineStyle.opacity	default=1
+splitArea	type=Object
+splitArea.interval	type=number|Function	default='auto'
+splitArea.show	default=false
+splitArea.areaStyle	type=Object
+splitArea.areaStyle.color	type=Array	default=['rgba(250,250,250,0.3)','rgba(200,200,200,0.3)']
+splitArea.areaStyle.shadowBlur	type=number
+splitArea.areaStyle.shadowColor	type=Color
+splitArea.areaStyle.shadowOffsetX	default=0
+splitArea.areaStyle.shadowOffsetY	default=0
+splitArea.areaStyle.opacity	default=1
+data	type=Array
+data.value	type=string
+data.textStyle	type=Object
+data.textStyle.color	type=Color	default='#fff'
+data.textStyle.fontStyle	default='normal'
+data.textStyle.fontWeight	type=string|number	default='normal'
+data.textStyle.fontFamily	default='sans-serif'
+data.textStyle.fontSize	default=12
+data.textStyle.align	type=string
+data.textStyle.verticalAlign	type=string
+data.textStyle.lineHeight	type=number	default=12
+data.textStyle.backgroundColor	type=string|Object	default='transparent'
+data.textStyle.borderColor	type=Color	default=#fff
+data.textStyle.borderWidth	default=0
+data.textStyle.borderType	type=string|number|Array	default='solid'
+data.textStyle.borderDashOffset	default=0
+data.textStyle.borderRadius	type=number|Array	default=0
+data.textStyle.padding	type=number|Array	default=0
+data.textStyle.shadowColor	type=Color	default='transparent'
+data.textStyle.shadowBlur	default=0
+data.textStyle.shadowOffsetX	default=0
+data.textStyle.shadowOffsetY	default=0
+data.textStyle.width	type=number	default=100
+data.textStyle.height	type=number	default=50
+data.textStyle.textBorderColor	type=Color
+data.textStyle.textBorderWidth	type=number
+data.textStyle.textBorderType	type=string|number|Array	default='solid'
+data.textStyle.textBorderDashOffset	default=0
+data.textStyle.textShadowColor	type=Color	default='transparent'
+data.textStyle.textShadowBlur	default=0
+data.textStyle.textShadowOffsetX	default=0
+data.textStyle.textShadowOffsetY	default=0
+data.textStyle.overflow	default='none'
+data.textStyle.ellipsis	default='...'
+data.textStyle.rich	type=Object
+data.textStyle.rich.<style_name>.color	type=Color	default='#fff'
+data.textStyle.rich.<style_name>.fontStyle	default='normal'
+data.textStyle.rich.<style_name>.fontWeight	type=string|number	default='normal'
+data.textStyle.rich.<style_name>.fontFamily	default='sans-serif'
+data.textStyle.rich.<style_name>.fontSize	default=12
+data.textStyle.rich.<style_name>.align	type=string
+data.textStyle.rich.<style_name>.verticalAlign	type=string
+data.textStyle.rich.<style_name>.lineHeight	type=number	default=12
+data.textStyle.rich.<style_name>.backgroundColor	type=string|Object	default='transparent'
+data.textStyle.rich.<style_name>.borderColor	type=Color	default=#fff
+data.textStyle.rich.<style_name>.borderWidth	default=0
+data.textStyle.rich.<style_name>.borderType	type=string|number|Array	default='solid'
+data.textStyle.rich.<style_name>.borderDashOffset	default=0
+data.textStyle.rich.<style_name>.borderRadius	type=number|Array	default=0
+data.textStyle.rich.<style_name>.padding	type=number|Array	default=0
+data.textStyle.rich.<style_name>.shadowColor	type=Color	default='transparent'
+data.textStyle.rich.<style_name>.shadowBlur	default=0
+data.textStyle.rich.<style_name>.shadowOffsetX	default=0
+data.textStyle.rich.<style_name>.shadowOffsetY	default=0
+data.textStyle.rich.<style_name>.width	type=number|string
+data.textStyle.rich.<style_name>.height	type=number|string
+data.textStyle.rich.<style_name>.textBorderColor	type=Color
+data.textStyle.rich.<style_name>.textBorderWidth	type=number
+data.textStyle.rich.<style_name>.textBorderType	type=string|number|Array	default='solid'
+data.textStyle.rich.<style_name>.textBorderDashOffset	default=0
+data.textStyle.rich.<style_name>.textShadowColor	type=Color	default='transparent'
+data.textStyle.rich.<style_name>.textShadowBlur	default=0
+data.textStyle.rich.<style_name>.textShadowOffsetX	default=0
+data.textStyle.rich.<style_name>.textShadowOffsetY	default=0
+data.textStyle.richInheritPlainLabel	default=true
+axisPointer	type=Object
+axisPointer.show	default=false
+axisPointer.type	default='line'
+axisPointer.snap	type=boolean
+axisPointer.z	type=number
+axisPointer.label	type=Object
+axisPointer.label.show	default=false
+axisPointer.label.precision	type=number|string	default='auto'
+axisPointer.label.formatter	type=string|Function
+axisPointer.label.margin	default=3
+axisPointer.label.color	type=Color	default='#fff'
+axisPointer.label.fontStyle	default='normal'
+axisPointer.label.fontWeight	type=string|number	default='normal'
+axisPointer.label.fontFamily	default='sans-serif'
+axisPointer.label.fontSize	default=12
+axisPointer.label.lineHeight	type=number	default=12
+axisPointer.label.width	type=number	default=100
+axisPointer.label.height	type=number	default=50
+axisPointer.label.textBorderColor	type=Color
+axisPointer.label.textBorderWidth	type=number
+axisPointer.label.textBorderType	type=string|number|Array	default='solid'
+axisPointer.label.textBorderDashOffset	default=0
+axisPointer.label.textShadowColor	type=Color	default='transparent'
+axisPointer.label.textShadowBlur	default=0
+axisPointer.label.textShadowOffsetX	default=0
+axisPointer.label.textShadowOffsetY	default=0
+axisPointer.label.overflow	default='none'
+axisPointer.label.ellipsis	default='...'
+axisPointer.label.padding	type=string|Array	default=[5, 7, 5, 7]
+axisPointer.label.backgroundColor	default='auto'
+axisPointer.label.borderColor	type=string
+axisPointer.label.borderWidth	type=string	default=0
+axisPointer.label.shadowBlur	default=3
+axisPointer.label.shadowColor	type=Color	default=#aaa
+axisPointer.label.shadowOffsetX	default=0
+axisPointer.label.shadowOffsetY	default=0
+axisPointer.lineStyle	type=Object
+axisPointer.lineStyle.color	type=Color	default=#555
+axisPointer.lineStyle.width	default=1
+axisPointer.lineStyle.type	type=string|number|Array	default=solid
+axisPointer.lineStyle.dashOffset	default=0
+axisPointer.lineStyle.cap	default='butt'
+axisPointer.lineStyle.join	default='bevel'
+axisPointer.lineStyle.miterLimit	default=10
+axisPointer.lineStyle.shadowBlur	type=number
+axisPointer.lineStyle.shadowColor	type=Color
+axisPointer.lineStyle.shadowOffsetX	default=0
+axisPointer.lineStyle.shadowOffsetY	default=0
+axisPointer.lineStyle.opacity	default=1
+axisPointer.shadowStyle	type=Object
+axisPointer.shadowStyle.color	type=Color	default='rgba(150,150,150,0.3)
+axisPointer.shadowStyle.shadowBlur	type=number
+axisPointer.shadowStyle.shadowColor	type=Color
+axisPointer.shadowStyle.shadowOffsetX	default=0
+axisPointer.shadowStyle.shadowOffsetY	default=0
+axisPointer.shadowStyle.opacity	default=1
+axisPointer.triggerEmphasis	default=true
+axisPointer.triggerTooltip	default=true
+axisPointer.value	type=number
+axisPointer.status	type=boolean
+axisPointer.handle	type=Object
+axisPointer.handle.show	default=false
+axisPointer.handle.icon	type=*
+axisPointer.handle.size	type=number|Array	default=45
+axisPointer.handle.margin	default=50
+axisPointer.handle.color	default='#333'
+axisPointer.handle.throttle	default=40
+axisPointer.handle.shadowBlur	default=3
+axisPointer.handle.shadowColor	type=Color	default=#aaa
+axisPointer.handle.shadowOffsetX	default=2
+axisPointer.handle.shadowOffsetY	default=0
+tooltip	type=Object
+tooltip.show	default=false
+tooltip.position	type=string|Array|Function
+tooltip.formatter	type=string|Function
+tooltip.backgroundColor	type=Color	default='rgba(50,50,50,0.7)'
+tooltip.borderColor	type=Color	default='#333'
+tooltip.borderWidth	default=0
+tooltip.padding	default=5
+tooltip.textStyle	type=Object
+tooltip.textStyle.color	type=Color	default='#fff'
+tooltip.textStyle.fontStyle	default='normal'
+tooltip.textStyle.fontWeight	type=string|number	default='normal'
+tooltip.textStyle.fontFamily	default='sans-serif'
+tooltip.textStyle.fontSize	default=14
+tooltip.textStyle.lineHeight	type=number	default=12
+tooltip.textStyle.width	type=number	default=100
+tooltip.textStyle.height	type=number	default=50
+tooltip.textStyle.textBorderColor	type=Color
+tooltip.textStyle.textBorderWidth	type=number
+tooltip.textStyle.textBorderType	type=string|number|Array	default='solid'
+tooltip.textStyle.textBorderDashOffset	default=0
+tooltip.textStyle.textShadowColor	type=Color	default='transparent'
+tooltip.textStyle.textShadowBlur	default=0
+tooltip.textStyle.textShadowOffsetX	default=0
+tooltip.textStyle.textShadowOffsetY	default=0
+tooltip.textStyle.overflow	default='none'
+tooltip.textStyle.ellipsis	default='...'
+tooltip.extraCssText	type=string
+animation	default=true
+animationThreshold	default=2000
+animationDuration	type=number|Function	default=1000
+animationEasing	default='cubicOut'
+animationDelay	type=number|Function	default=0
+animationDurationUpdate	type=number|Function	default=300
+animationEasingUpdate	default='cubicInOut'
+animationDelayUpdate	type=number|Function	default=0
+zlevel	default=0
+z	default=0
+nameTextStyle.rich.<style_name>	type=Object
+axisLine.lineStyle	type=Object
+minorTick.lineStyle	type=Object
+axisLabel.rich.<style_name>	type=Object
+splitLine.lineStyle	type=Object
+minorSplitLine.lineStyle	type=Object
+data.textStyle.rich.<style_name>	type=Object

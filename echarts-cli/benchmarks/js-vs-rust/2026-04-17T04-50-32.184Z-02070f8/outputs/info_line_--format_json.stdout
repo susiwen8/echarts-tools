@@ -1,0 +1,76 @@
+{
+  "name": "line",
+  "kind": "chart",
+  "exportName": "LineChart",
+  "sourcePath": "src/chart/line/install.ts",
+  "installPath": "src/chart/line/install.ts",
+  "optionType": "LineSeriesOption",
+  "topLevelKey": "series[]",
+  "optionPath": "series[].type = \"line\"",
+  "dependencies": [],
+  "examples": [
+    {
+      "id": "line-aqi",
+      "file": "line-aqi.ts",
+      "title": "北京 AQI 可视化",
+      "relativePath": "public/examples/ts/line-aqi.ts"
+    },
+    {
+      "id": "line-draggable",
+      "file": "line-draggable.ts",
+      "title": "可拖拽点",
+      "relativePath": "public/examples/ts/line-draggable.ts"
+    },
+    {
+      "id": "line-easing",
+      "file": "line-easing.ts",
+      "title": "缓动函数可视化",
+      "relativePath": "public/examples/ts/line-easing.ts"
+    },
+    {
+      "id": "line-fisheye-lens",
+      "file": "line-fisheye-lens.ts",
+      "title": "折线图鱼眼放大",
+      "relativePath": "public/examples/ts/line-fisheye-lens.ts"
+    },
+    {
+      "id": "line-function",
+      "file": "line-function.ts",
+      "title": "函数绘图",
+      "relativePath": "public/examples/ts/line-function.ts"
+    },
+    {
+      "id": "line-gradient",
+      "file": "line-gradient.ts",
+      "title": "折线图的渐变",
+      "relativePath": "public/examples/ts/line-gradient.ts"
+    },
+    {
+      "id": "line-graphic",
+      "file": "line-graphic.ts",
+      "title": "自定义图形组件",
+      "relativePath": "public/examples/ts/line-graphic.ts"
+    },
+    {
+      "id": "line-in-cartesian-coordinate-system",
+      "file": "line-in-cartesian-coordinate-system.ts",
+      "title": "双数值轴折线图",
+      "relativePath": "public/examples/ts/line-in-cartesian-coordinate-system.ts"
+    }
+  ],
+  "docs": {
+    "option": {
+      "zh": {
+        "relativePath": "zh/documents/option-parts/option.series-line.json",
+        "title": "option.series-line",
+        "summary": null
+      },
+      "en": {
+        "relativePath": "en/documents/option-parts/option.series-line.json",
+        "title": "option.series-line",
+        "summary": null
+      }
+    },
+    "tutorials": []
+  }
+}

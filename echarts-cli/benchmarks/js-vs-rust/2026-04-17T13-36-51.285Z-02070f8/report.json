@@ -1,0 +1,189 @@
+{
+  "generatedAt": "2026-04-17T13:36:51.286Z",
+  "gitSha": "02070f8",
+  "environment": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "node": "v22.17.0",
+    "cargo": "/Users/susiwen8/.local/rust-1.95.0/bin/cargo",
+    "warmupRuns": 1,
+    "measuredRuns": 1,
+    "scope": "CLI-only benchmark"
+  },
+  "cases": [
+    {
+      "name": "list-json",
+      "args": [
+        "list",
+        "--format",
+        "json"
+      ],
+      "mode": "json",
+      "outputBytes": 9328,
+      "outputChecksum": "1dea416138b1da4082bb0744a8086a62982b700b855e23c4c898ae9148a125d2",
+      "js": {
+        "runs": 1,
+        "minMs": 8239.548417,
+        "medianMs": 8239.548417,
+        "p95Ms": 8239.548417,
+        "maxMs": 8239.548417,
+        "meanMs": 8239.548417
+      },
+      "rust": {
+        "runs": 1,
+        "minMs": 9913.0015,
+        "medianMs": 9913.0015,
+        "p95Ms": 9913.0015,
+        "maxMs": 9913.0015,
+        "meanMs": 9913.0015
+      },
+      "speedupVsJs": 0.8311860355312162
+    },
+    {
+      "name": "info-line-json",
+      "args": [
+        "info",
+        "line",
+        "--format",
+        "json"
+      ],
+      "mode": "json",
+      "outputBytes": 2139,
+      "outputChecksum": "e847d6e8e5c882b8f3e36e17a6b7cc947e64838421b9cc3ae912f1d2e8fc8467",
+      "js": {
+        "runs": 1,
+        "minMs": 10485.026667,
+        "medianMs": 10485.026667,
+        "p95Ms": 10485.026667,
+        "maxMs": 10485.026667,
+        "meanMs": 10485.026667
+      },
+      "rust": {
+        "runs": 1,
+        "minMs": 12220.192375,
+        "medianMs": 12220.192375,
+        "p95Ms": 12220.192375,
+        "maxMs": 12220.192375,
+        "meanMs": 12220.192375
+      },
+      "speedupVsJs": 0.8580083148650104
+    },
+    {
+      "name": "example-line-detail-json",
+      "args": [
+        "example",
+        "line",
+        "line-simple.ts",
+        "--format",
+        "json"
+      ],
+      "mode": "json",
+      "outputBytes": 508,
+      "outputChecksum": "290f77b0e7c0295c9676b7d1771e76885ff77d23356148224c20494373207ebd",
+      "js": {
+        "runs": 1,
+        "minMs": 10200.3785,
+        "medianMs": 10200.3785,
+        "p95Ms": 10200.3785,
+        "maxMs": 10200.3785,
+        "meanMs": 10200.3785
+      },
+      "rust": {
+        "runs": 1,
+        "minMs": 10007.090292,
+        "medianMs": 10007.090292,
+        "p95Ms": 10007.090292,
+        "maxMs": 10007.090292,
+        "meanMs": 10007.090292
+      },
+      "speedupVsJs": 1.0193151258117978
+    },
+    {
+      "name": "option-axislabel-tree",
+      "args": [
+        "option",
+        "xAxis.axisLabel",
+        "--tree"
+      ],
+      "mode": "exact",
+      "outputBytes": 7064,
+      "outputChecksum": "8f321c0b4f27c66af50bcf5b83f65c7c954bb14fc535cb5b6de651e3dbdeb927",
+      "js": {
+        "runs": 1,
+        "minMs": 10233.947667,
+        "medianMs": 10233.947667,
+        "p95Ms": 10233.947667,
+        "maxMs": 10233.947667,
+        "meanMs": 10233.947667
+      },
+      "rust": {
+        "runs": 1,
+        "minMs": 9601.356417,
+        "medianMs": 9601.356417,
+        "p95Ms": 9601.356417,
+        "maxMs": 9601.356417,
+        "meanMs": 9601.356417
+      },
+      "speedupVsJs": 1.065885612670304
+    },
+    {
+      "name": "option-line-xaxis-label-json",
+      "args": [
+        "option",
+        "line",
+        "xAxis",
+        "label",
+        "--format",
+        "json"
+      ],
+      "mode": "json",
+      "outputBytes": 55585,
+      "outputChecksum": "9e3e637b81f5c2e83fa8edd7afba7f9f2aa241102263d2723e49c2b8a106189c",
+      "js": {
+        "runs": 1,
+        "minMs": 9405.784959,
+        "medianMs": 9405.784959,
+        "p95Ms": 9405.784959,
+        "maxMs": 9405.784959,
+        "meanMs": 9405.784959
+      },
+      "rust": {
+        "runs": 1,
+        "minMs": 9205.765625,
+        "medianMs": 9205.765625,
+        "p95Ms": 9205.765625,
+        "maxMs": 9205.765625,
+        "meanMs": 9205.765625
+      },
+      "speedupVsJs": 1.0217276152954415
+    },
+    {
+      "name": "option-line-xaxis-grep",
+      "args": [
+        "option",
+        "line.xAxis",
+        "--grep"
+      ],
+      "mode": "exact",
+      "outputBytes": 21362,
+      "outputChecksum": "932c235111054b01bc76c2f8ffa7087e2ea35dac6d3a9e43e31c7f21541f10a2",
+      "js": {
+        "runs": 1,
+        "minMs": 9079.555375,
+        "medianMs": 9079.555375,
+        "p95Ms": 9079.555375,
+        "maxMs": 9079.555375,
+        "meanMs": 9079.555375
+      },
+      "rust": {
+        "runs": 1,
+        "minMs": 8970.27475,
+        "medianMs": 8970.27475,
+        "p95Ms": 8970.27475,
+        "maxMs": 8970.27475,
+        "meanMs": 8970.27475
+      },
+      "speedupVsJs": 1.0121825281884482
+    }
+  ]
+}

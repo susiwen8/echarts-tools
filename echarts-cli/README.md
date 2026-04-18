@@ -25,10 +25,4 @@ Prepare the packaged Rust binary:
 npm run rust:dist:prepare
 ```
 
-JS oracle for parity/debugging only:
-
-```bash
-npm run cli:js -- list
-```
-
 See `development.md` for implementation notes, packaging details, testing, and migration status.

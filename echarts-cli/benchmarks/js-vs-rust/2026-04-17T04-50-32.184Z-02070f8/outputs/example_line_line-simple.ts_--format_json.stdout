@@ -1,0 +1,10 @@
+{
+  "id": "line-simple",
+  "file": "line-simple.ts",
+  "title": "基础折线图",
+  "tokens": [
+    "line",
+    "simple"
+  ],
+  "content": "/*\ntitle: Basic Line Chart\ncategory: line\ntitleCN: 基础折线图\ndifficulty: 0\n*/\n\noption = {\n  xAxis: {\n    type: 'category',\n    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']\n  },\n  yAxis: {\n    type: 'value'\n  },\n  series: [\n    {\n      data: [150, 230, 224, 218, 135, 147, 260],\n      type: 'line'\n    }\n  ]\n};\n\nexport {};\n"
+}
