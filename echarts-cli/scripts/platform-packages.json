@@ -1,0 +1,68 @@
+[
+  {
+    "target": "darwin-arm64",
+    "rust_target": "aarch64-apple-darwin",
+    "package_name": "echarts-cli-darwin-arm64",
+    "os": [
+      "darwin"
+    ],
+    "cpu": [
+      "arm64"
+    ]
+  },
+  {
+    "target": "darwin-x64",
+    "rust_target": "x86_64-apple-darwin",
+    "package_name": "echarts-cli-darwin-x64",
+    "os": [
+      "darwin"
+    ],
+    "cpu": [
+      "x64"
+    ]
+  },
+  {
+    "target": "linux-x64",
+    "rust_target": "x86_64-unknown-linux-musl",
+    "package_name": "echarts-cli-linux-x64-musl",
+    "os": [
+      "linux"
+    ],
+    "cpu": [
+      "x64"
+    ]
+  },
+  {
+    "target": "linux-arm64",
+    "rust_target": "aarch64-unknown-linux-musl",
+    "package_name": "echarts-cli-linux-arm64-musl",
+    "os": [
+      "linux"
+    ],
+    "cpu": [
+      "arm64"
+    ]
+  },
+  {
+    "target": "win32-x64",
+    "rust_target": "x86_64-pc-windows-msvc",
+    "package_name": "echarts-cli-win32-x64-msvc",
+    "os": [
+      "win32"
+    ],
+    "cpu": [
+      "x64"
+    ]
+  },
+  {
+    "target": "win32-arm64",
+    "rust_target": "aarch64-pc-windows-msvc",
+    "package_name": "echarts-cli-win32-arm64-msvc",
+    "os": [
+      "win32"
+    ],
+    "cpu": [
+      "arm64"
+    ]
+  }
+]

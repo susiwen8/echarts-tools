@@ -334,6 +334,45 @@ test('example uses packaged content files without external examples checkout', (
   assert.match(payload.content, /type:\s*'line'/);
 });
 
+test('example rejects external examples checkout when packaged content is missing', () => {
+  const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'echarts-cli-no-external-fallback-'));
+
+  fs.cpSync(path.resolve(__dirname, '..', 'bin'), path.join(fixtureRoot, 'bin'), { recursive: true });
+  fs.cpSync(path.resolve(__dirname, '..', 'src'), path.join(fixtureRoot, 'src'), { recursive: true });
+  fs.cpSync(path.resolve(__dirname, '..', 'data'), path.join(fixtureRoot, 'data'), { recursive: true });
+  fs.cpSync(path.resolve(__dirname, '..', 'node_modules'), path.join(fixtureRoot, 'node_modules'), { recursive: true });
+
+  const metadataPath = path.join(fixtureRoot, 'data', 'metadata.json');
+  const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+  const lineSimple = metadata.examples.find(example => example.id === 'line-simple');
+  const packagedExamplePath = path.join(fixtureRoot, 'data', lineSimple.contentPath);
+  fs.rmSync(packagedExamplePath, { force: true });
+
+  const externalExamplesRoot = path.join(fixtureRoot, 'external-examples');
+  fs.mkdirSync(path.join(externalExamplesRoot, 'public', 'examples', 'ts'), { recursive: true });
+  fs.writeFileSync(
+    path.join(externalExamplesRoot, 'public', 'examples', 'ts', 'line-simple.ts'),
+    "const option = { series: [{ type: 'line' }] };\n"
+  );
+
+  const result = spawnSync(
+    process.execPath,
+    [path.join('bin', 'echarts.js'), 'example', 'line', 'line-simple.ts', '--format', 'json'],
+    {
+      cwd: fixtureRoot,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        ECHARTS_CLI_EXAMPLES_ROOT: externalExamplesRoot
+      },
+      maxBuffer: 20 * 1024 * 1024
+    }
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Example content unavailable/i);
+});
+
 test('option uses packaged docs subset without external echarts-website checkout', () => {
   const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'echarts-cli-packaged-docs-'));
 

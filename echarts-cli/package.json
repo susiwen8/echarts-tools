@@ -5,22 +5,41 @@
   "license": "Apache-2.0",
   "type": "commonjs",
   "bin": {
-    "echarts": "bin/echarts.js"
+    "echarts": "dist/rust/echarts"
   },
   "files": [
-    "bin",
-    "src",
+    "dist",
     "data",
-    "README.md"
+    "README.md",
+    "development.md"
   ],
   "scripts": {
-    "cli": "node bin/echarts.js",
-    "build:data": "node scripts/build-data.js",
-    "prepack": "node scripts/build-data.js",
-    "start": "node bin/echarts.js",
-    "test": "node --test __tests__/cli.test.js"
+    "cli": "./target/debug/echarts",
+    "build:data": "npm run rust:build:data",
+    "prepack": "npm run rust:dist:prepare && npm run rust:build:data",
+    "start": "./target/debug/echarts",
+    "test": "node scripts/test-all.js",
+    "test:compat": "node --test __tests__/compat.test.js",
+    "test:parity": "node --test __tests__/parity-harness.test.js",
+    "test:parity:rust": "ECHARTS_CLI_RUN_RUST_PARITY=1 node --test __tests__/parity-harness.test.js",
+    "rust:build": "node scripts/rust-tools.js cargo build --quiet --bin echarts",
+    "rust:run": "node scripts/rust-tools.js cargo run --quiet --bin echarts --",
+    "bench:compare": "node scripts/benchmark-rust-vs-js.js",
+    "rust:build:data": "node scripts/rust-tools.js cargo run --quiet --bin echarts-build-data --",
+    "cli:js": "node bin/echarts.js",
+    "rust:build:release": "node scripts/rust-tools.js cargo build --release --quiet --bin echarts --bin echarts-build-data",
+    "rust:dist:prepare": "node scripts/prepare-rust-dist.js",
+    "rust:dist:verify": "node scripts/verify-packed-rust-dist.js",
+    "cli:release": "./dist/rust/echarts",
+    "npm:platform:prepare": "node scripts/prepare-platform-package.js",
+    "npm:platform:prepare:all": "node scripts/prepare-platform-package.js all",
+    "npm:platform:verify": "node scripts/verify-platform-package.js",
+    "npm:platform:verify:all": "node scripts/verify-platform-package.js all",
+    "npm:platform:publish": "node scripts/publish-platform-package.js",
+    "npm:platform:publish:all": "node scripts/publish-platform-package.js all"
   },
   "dependencies": {
     "commander": "2.11.0"
-  }
+  },
+  "private": true
 }

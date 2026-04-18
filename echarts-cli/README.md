@@ -2,23 +2,33 @@
 
 Offline knowledge CLI for Apache ECharts users.
 
-## Commands
+## Usage
 
-- `echarts list`
-- `echarts info <name>`
-- `echarts example <query> [id]`
-- `echarts option [name]`
-
-## Local Development
+Build the Rust CLI:
 
 ```bash
-npm run build:data
-npm run cli -- list
-npm run cli -- info line --format json
+npm run rust:build
 ```
 
-## Notes
+Run commands locally:
 
-- Metadata is generated from the ECharts repository itself.
-- The package prefers bundled `data/metadata.json` when present.
-- Inside this repo, it can fall back to live source extraction for development.
+```bash
+./target/debug/echarts list
+./target/debug/echarts info line --format json
+./target/debug/echarts example line line-simple.ts --format json
+./target/debug/echarts option xAxis.type --format json
+```
+
+Prepare the packaged Rust binary:
+
+```bash
+npm run rust:dist:prepare
+```
+
+JS oracle for parity/debugging only:
+
+```bash
+npm run cli:js -- list
+```
+
+See `development.md` for implementation notes, packaging details, testing, and migration status.

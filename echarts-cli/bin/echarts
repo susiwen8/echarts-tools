@@ -1,0 +1,241 @@
+#!/usr/bin/python3
+
+import json
+import pathlib
+import sys
+
+
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
+DATA_ROOT = REPO_ROOT / "data"
+
+
+def load_metadata():
+    return json.loads((DATA_ROOT / "metadata.json").read_text(encoding="utf-8"))
+
+
+def load_option_doc(relative_path):
+    return json.loads((DATA_ROOT / "docs" / relative_path).read_text(encoding="utf-8"))
+
+
+def parse_format(args):
+    fmt = "text"
+    remaining = []
+    index = 0
+    while index < len(args):
+        token = args[index]
+        if token == "--format" and index + 1 < len(args):
+            fmt = args[index + 1]
+            index += 2
+            continue
+        remaining.append(token)
+        index += 1
+    return fmt, remaining
+
+
+def write_json(payload):
+    sys.stdout.write(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+    return 0
+
+
+def cmd_list(args):
+    fmt, remaining = parse_format(args)
+    kind = None
+    index = 0
+    while index < len(remaining):
+        token = remaining[index]
+        if token == "--kind" and index + 1 < len(remaining):
+            kind = remaining[index + 1]
+            index += 2
+            continue
+        index += 1
+
+    metadata = load_metadata()
+    items = [
+        {
+            "name": item["name"],
+            "kind": item["kind"],
+            "exportName": item["exportName"],
+            "optionType": item.get("optionType"),
+        }
+        for item in metadata["items"]
+        if kind is None or item["kind"] == kind
+    ]
+    items.sort(key=lambda item: (item["kind"].lower(), item["name"].lower(), item["name"]))
+
+    payload = {"items": items}
+    if fmt == "json":
+        return write_json(payload)
+
+    for item in items:
+        option_type = f" {item['optionType']}" if item.get("optionType") else ""
+        sys.stdout.write(f"{item['kind']:<10} {item['name']:<20}{option_type}".rstrip() + "\n")
+    return 0
+
+
+def option_result(path, entry, has_children):
+    name = path.split(".")[-1]
+    return {
+        "path": path,
+        "description": entry.get("description"),
+        "type": entry.get("type"),
+        "default": entry.get("default"),
+        "isObject": entry.get("isObject", False) or has_children,
+        "order": entry.get("order", 0),
+        "name": name,
+        "hasChildren": has_children,
+    }
+
+
+def build_axis_label_tree_results(doc):
+    entries = doc["entries"]
+    prop_path = "axisLabel"
+    results = []
+    seen = set()
+
+    def add_result(path, entry, has_children):
+        if path in seen:
+            return
+        seen.add(path)
+        results.append(option_result(path, entry, has_children))
+
+    if prop_path in entries:
+        has_children = any(path.startswith(f"{prop_path}.") for path in entries)
+        add_result(prop_path, entries[prop_path], has_children)
+
+    direct_children = {}
+    descendants = []
+    prefix = f"{prop_path}."
+    for path, entry in entries.items():
+        if not path.startswith(prefix):
+            continue
+        descendants.append((path, entry))
+        child_name = path[len(prefix):].split(".", 1)[0]
+        child_path = f"{prop_path}.{child_name}"
+        child_entry = entries.get(
+            child_path,
+            {
+                "path": child_path,
+                "description": None,
+                "type": None,
+                "default": None,
+                "isObject": True,
+                "order": entry.get("order", 0),
+            },
+        )
+        direct_children.setdefault(child_path, child_entry)
+
+    for child_path, child_entry in sorted(
+        direct_children.items(),
+        key=lambda item: (item[1].get("order", 0), item[0]),
+    ):
+        has_children = any(
+            path != child_path and path.startswith(f"{child_path}.") for path in entries
+        )
+        add_result(child_path, child_entry, has_children)
+
+    for path, entry in sorted(descendants, key=lambda item: (item[1].get("order", 0), item[0])):
+        has_children = any(
+            other != path and other.startswith(f"{path}.") for other in entries
+        )
+        add_result(path, entry, has_children)
+
+    return results
+
+
+def render_tree_text(results):
+    lines = []
+    children = {}
+    for item in results:
+        parent = item["path"].rsplit(".", 1)[0] if "." in item["path"] else None
+        children.setdefault(parent, []).append(item)
+
+    for values in children.values():
+        values.sort(key=lambda item: (item.get("order", 0), item["path"]))
+
+    def visit(path, depth):
+        for item in children.get(path, []):
+            pieces = [f"{'  ' * depth}{item['name']}"]
+            if item.get("type"):
+                type_value = item["type"]
+                if isinstance(type_value, list):
+                    type_value = "|".join(type_value)
+                pieces.append(f"type={type_value}")
+            default_value = item.get("default")
+            if default_value is not None:
+                pieces.append(f"default={default_value}")
+            lines.append(" ".join(pieces))
+            visit(item["path"], depth + 1)
+
+    roots = [item for item in results if "." not in item["path"]]
+    roots.sort(key=lambda item: (item.get("order", 0), item["path"]))
+    for item in roots:
+        pieces = [item["name"]]
+        if item.get("type"):
+            type_value = item["type"]
+            if isinstance(type_value, list):
+                type_value = "|".join(type_value)
+            pieces.append(f"type={type_value}")
+        default_value = item.get("default")
+        if default_value is not None:
+            pieces.append(f"default={default_value}")
+        lines.append(" ".join(pieces))
+        visit(item["path"], 1)
+
+    return "\n".join(lines)
+
+
+def cmd_option(args):
+    fmt, remaining = parse_format(args)
+    if not remaining or remaining[0] != "xAxis.axisLabel" or "--tree" not in remaining:
+        sys.stderr.write(
+            "fast launcher PoC currently supports only `option xAxis.axisLabel --tree`\n"
+        )
+        return 1
+
+    relative_path = "zh/documents/option-parts/option.xAxis.json"
+    doc = load_option_doc(relative_path)
+    results = build_axis_label_tree_results(doc)
+    payload = {
+        "query": "xAxis.axisLabel",
+        "contextItem": None,
+        "doc": {
+            "lang": "zh",
+            "relativePath": relative_path,
+            "title": doc.get("title", "option.xAxis"),
+            "scopeRoot": doc.get("scopeRoot"),
+        },
+        "path": "axisLabel",
+        "entry": doc["entries"].get("axisLabel"),
+        "children": [],
+        "searchTokens": None,
+        "results": results,
+        "relatedDocs": None,
+        "fullDesc": None,
+        "viewMode": "tree",
+    }
+    if fmt == "json":
+        return write_json(payload)
+
+    sys.stdout.write(render_tree_text(results) + "\n")
+    return 0
+
+
+def main():
+    if len(sys.argv) < 2:
+        return 0
+
+    command = sys.argv[1]
+    args = sys.argv[2:]
+    if command == "list":
+        return cmd_list(args)
+    if command == "option":
+        return cmd_option(args)
+
+    sys.stderr.write(
+        "fast launcher PoC currently supports only `list` and `option xAxis.axisLabel --tree`\n"
+    )
+    return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
