@@ -7,11 +7,11 @@ license = "Apache-2.0"
 
 [[bin]]
 name = "echarts"
-path = "rust-src/main.rs"
+path = "src/main.rs"
 
 [[bin]]
 name = "echarts-build-data"
-path = "rust-src/bin/build-data.rs"
+path = "src/bin/build-data.rs"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
